@@ -1,0 +1,5 @@
+---
+title: Gitbook Template
+author: Your Name Goes Here
+date: 2016-01-01
+...
