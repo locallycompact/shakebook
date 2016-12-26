@@ -1,3 +1,4 @@
+import Control.Arrow
 import Development.Shake
 import Development.Shake.Command
 import Development.Shake.FilePath
@@ -10,7 +11,7 @@ styleFiles = ["css/*.css", "fonts/*.ttf"]
 styleDeps = map (site </>) <$> getDirectoryFiles "" styleFiles
 
 copy :: FilePattern -> Rules ()
-copy pattern = site </> pattern %> \out -> copyFile' (dropDirectory1 out) out
+copy pattern = site </> pattern %> uncurry copyFile' . (dropDirectory1 &&& id)
 
 main :: IO ()
 main = shakeArgs shakeOptions $ do
