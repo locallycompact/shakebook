@@ -13,6 +13,8 @@ styleDeps = map (site </>) <$> getDirectoryFiles "" styleFiles
 copy :: FilePattern -> Rules ()
 copy pattern = site </> pattern %> uncurry copyFile' . (dropDirectory1 &&& id)
 
+getMarkdownFiles = getDirectoryFiles "" ["notes//*.md"]
+
 main :: IO ()
 main = shakeArgs shakeOptions $ do
   let index = site </> "index.html"
@@ -30,7 +32,7 @@ main = shakeArgs shakeOptions $ do
   mapM copy styleFiles
 
   index %> \out -> do
-    ms <- getDirectoryFiles "" ["//*.md"]
+    ms <- getMarkdownFiles
     ss <- styleDeps
     need $ ms ++ ss
     cmd "pandoc" ms ["-o", out, "-c", "css/style.css", "-c", "css/layout.css",
@@ -39,12 +41,12 @@ main = shakeArgs shakeOptions $ do
                                "--highlight-style", "pygments", "--mathjax"]
 
   pdf %> \out -> do
-    ms <- getDirectoryFiles "" ["//*.md"]
+    ms <- getMarkdownFiles
     need $ meta ++ ms
     cmd "pandoc" (meta ++ ms) ["-o", out, "--standalone", "--toc", "--toc-depth=2"]
 
   beamer %> \out -> do
-    ms <- getDirectoryFiles "" ["//*.md"]
+    ms <- getMarkdownFiles
     need $ meta ++ ms
     cmd "pandoc" (meta ++ ms) ["-o", out, "--standalone", "-t", "beamer"]
 
