@@ -4,7 +4,7 @@ import Development.Shake.Command
 import Development.Shake.FilePath
 import Development.Shake.Util
 
-site = "_build"
+site = "public"
 browser = "chromium"
 
 styleFiles = ["css/*.css", "fonts/*.ttf", "img/*.png"]

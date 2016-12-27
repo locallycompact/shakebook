@@ -1,0 +1,15 @@
+image: haskell:latest
+
+before_script:
+- apt-get update
+- apt install -y pandoc
+- cabal update
+- cabal install shake
+
+pages:
+  stage: deploy
+  script:
+  - shake
+  artifacts:
+    paths:
+    - public
