@@ -1,8 +1,8 @@
 # Pandoc/Shake Gitbook Template
 
-Makes good gitbooks
+This is an example of a Gitbook Template using pandoc and shake.
 
 How to use:
 
-    stack install pandoc shake
+    cabal install pandoc shake
     shake test
