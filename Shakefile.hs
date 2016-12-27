@@ -7,7 +7,7 @@ import Development.Shake.Util
 site = "_build"
 browser = "chromium"
 
-styleFiles = ["css/*.css", "fonts/*.ttf"]
+styleFiles = ["css/*.css", "fonts/*.ttf", "img/*.png"]
 styleDeps = map (site </>) <$> getDirectoryFiles "" styleFiles
 
 copy :: FilePattern -> Rules ()
@@ -32,10 +32,10 @@ main = shakeArgs shakeOptions $ do
   index %> \out -> do
     ms <- getDirectoryFiles "" ["//*.md"]
     ss <- styleDeps
-    need $ meta ++ ms ++ ss
-    cmd "pandoc" (meta ++ ms) ["-o", out, "-c", "css/style.css", "-t", "html", "-s",
-                               "--template", "resources/page.tmpl", "-f", "markdown",
-                               "--standalone", "--toc", "--toc-depth=2",
+    need $ ms ++ ss
+    cmd "pandoc" ms ["-o", out, "-c", "css/style.css", "-c", "css/layout.css",
+                               "-t", "html", "-s", "--template", "resources/page.tmpl",
+                               "-f", "markdown", "--standalone", "--toc", "--toc-depth=2",
                                "--highlight-style", "pygments", "--mathjax"]
 
   pdf %> \out -> do

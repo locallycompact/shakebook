@@ -2,17 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>$title$</title>
+    <title>HTML Title Here</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
-    <meta name="author" content="$author$">
+    $for(author-meta)$
+    <meta name="author" content="$author-meta$">
+    $endfor$
+    $if(date-meta)$
+    <meta name="dcterms.date" content="$date-meta$">
+    $endif$
 
-    <link href="http://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,700|Source+Code+Pro" rel="stylesheet">
     <style type="text/css">
       $header-includes$
     </style>
-
-    <link href="css/sidebar.css" rel="stylesheet">
 
     $if(highlighting-css)$
       <style type="text/css">
@@ -35,20 +38,33 @@
     $endfor$
   </head>
 
-  <body>
-    <div>
-      <div id="sidebar-wrapper">
-        <li class="sidebar-brand">
-          <!--<img style="width: 100px" class="" src="img/haskell_logo.svg">-->
-        </li>
-        <ul class="sidebar-nav">
+  <body itemscope itemtype="http://schema.org/TechArticle">
+    <div id="sidebar-wrapper">
+      <a href="index.html" class="logo">
+        <img src="img/logo.png" alt="Logo">
+      </a>
+      <button id="toggle-sidebar">
+        Menu
+      </button>
+      <ul class="sidebar-nav">
 $toc$
-        </ul>
-      </div>
-      <div class="span9 body">
+      </ul>
+    </div>
+
+    <div id="main-wrapper">
+      <div id="main">
+        <h1 class="document-title" itemprop="name">
+          HTML Book Title
+        </h1>
+        <p itemprop="version" class="document-version">
+        Version
+        <span class="version">0.1</span>
+        </p>
 $body$
       </div>
     </div>
+
     <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="js/nav.js"></script>
   </body>
 </html>
