@@ -4,5 +4,5 @@ Makes good gitbooks
 
 How to use:
 
-  stack install pandoc shake
-  shake test
+    stack install pandoc shake
+    shake test
