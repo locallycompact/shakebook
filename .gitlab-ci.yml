@@ -3,6 +3,7 @@ image: fullmetalhaskell/multitool
 pages:
   stage: deploy
   script:
+  - shake pdf
   - shake
   artifacts:
     paths:
