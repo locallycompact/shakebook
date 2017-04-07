@@ -1,29 +1,33 @@
 import Control.Applicative
+import Control.Monad
 import Development.Shake
 import Development.Shake.Command
 import Development.Shake.FilePath
 import Development.Shake.Util
 
-site = "public"
+site    = "public"
 browser = "chromium"
 
-css = ["css/*.css"]
+css   = ["css/*.css"]
 fonts = ["fonts/*.ttf"]
-imgs = ["img/*.png"]
+imgs  = ["img/*.png"]
+mdwn  = ["notes//*.md"]
 
-supports = css ++ fonts ++ imgs
+htemplate = "resources/page.tmpl"
 
-styleDeps = map (site </>) <$> getDirectoryFiles "" supports
+tocOpts = ["--toc", "--toc-depth=2"]
 
-copy :: FilePattern -> Rules ()
-copy pattern = site </> pattern %> flip copyFile' <*> dropDirectory1
+getCSSFiles      = getDirectoryFiles "" css
+getFonts         = getDirectoryFiles "" fonts
+getImages        = getDirectoryFiles "" imgs
+getMarkdownFiles = getDirectoryFiles "" mdwn
 
-getMarkdownFiles = getDirectoryFiles "" ["notes//*.md"]
+supportingFile = flip copyFile' <*> dropDirectory1
 
 main :: IO ()
 main = shakeArgs shakeOptions $ do
-  let index = site </> "index.html"
-  let pdf = site </> "book.pdf"
+  let index  = site </> "index.html"
+  let pdf    = site </> "book.pdf"
   let beamer = site </> "beamer.pdf"
 
   let meta = ["meta.txt"]
@@ -34,26 +38,32 @@ main = shakeArgs shakeOptions $ do
     putNormal $ "Cleaning files in " ++ site
     removeFilesAfter "." [site]
 
-  mapM copy supports
+  let supports = map (site </>) $ css ++ fonts ++ imgs
+
+  forM supports $ flip (%>) supportingFile
 
   index %> \out -> do
-    ms <- getMarkdownFiles
-    ss <- styleDeps
-    need $ meta ++ ms ++ ss
-    cmd "pandoc" (meta ++ ms) ["-o", out, "-c", "css/style.css", "-c", "css/layout.css",
-                               "-t", "html", "-s", "--template", "resources/page.tmpl",
-                               "-f", "markdown", "--standalone", "--toc", "--toc-depth=2",
-                               "--highlight-style", "pygments", "--mathjax"]
+    css   <- getCSSFiles
+    fonts <- getFonts
+    imgs  <- getImages
+    mdwn  <- getMarkdownFiles
+    let cssOpts = css >>= (\x -> ["-c", x])
+    need $ (site </>) <$> (css ++ fonts ++ imgs)
+    need $ meta ++ mdwn
+    cmd "pandoc" (meta ++ mdwn) $ ["-o", out, "-s", "--template", htemplate,
+                                   "-t", "html", "-f", "markdown",
+                                   "--highlight-style", "pygments",
+                                   "--mathjax"] ++ cssOpts ++ tocOpts
 
   pdf %> \out -> do
-    ms <- getMarkdownFiles
-    need $ meta ++ ms
-    cmd "pandoc" (meta ++ ms) ["-o", out, "--standalone", "--toc", "--toc-depth=2"]
+    mdwn <- getMarkdownFiles
+    need $ meta ++ mdwn
+    cmd "pandoc" (meta ++ mdwn) $ ["-o", out, "-s"] ++ tocOpts
 
   beamer %> \out -> do
-    ms <- getMarkdownFiles
-    need $ meta ++ ms
-    cmd "pandoc" (meta ++ ms) ["-o", out, "--standalone", "-t", "beamer"]
+    mdwn <- getMarkdownFiles
+    need $ meta ++ mdwn
+    cmd "pandoc" (meta ++ mdwn) ["-o", out, "-s", "-t", "beamer"]
 
   phony "pdf" $ need [pdf]
 
