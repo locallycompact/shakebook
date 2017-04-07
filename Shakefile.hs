@@ -7,8 +7,13 @@ import Development.Shake.Util
 site = "public"
 browser = "chromium"
 
-styleFiles = ["css/*.css", "fonts/*.ttf", "img/*.png"]
-styleDeps = map (site </>) <$> getDirectoryFiles "" styleFiles
+css = ["css/*.css"]
+fonts = ["fonts/*.ttf"]
+imgs = ["img/*.png"]
+
+supports = css ++ fonts ++ imgs
+
+styleDeps = map (site </>) <$> getDirectoryFiles "" supports
 
 copy :: FilePattern -> Rules ()
 copy pattern = site </> pattern %> flip copyFile' <*> dropDirectory1
@@ -21,7 +26,7 @@ main = shakeArgs shakeOptions $ do
   let pdf = site </> "book.pdf"
   let beamer = site </> "beamer.pdf"
 
-  let meta = ["title.txt"]
+  let meta = ["meta.txt"]
 
   want [index]
 
@@ -29,13 +34,13 @@ main = shakeArgs shakeOptions $ do
     putNormal $ "Cleaning files in " ++ site
     removeFilesAfter "." [site]
 
-  mapM copy styleFiles
+  mapM copy supports
 
   index %> \out -> do
     ms <- getMarkdownFiles
     ss <- styleDeps
-    need $ ms ++ ss
-    cmd "pandoc" ms ["-o", out, "-c", "css/style.css", "-c", "css/layout.css",
+    need $ meta ++ ms ++ ss
+    cmd "pandoc" (meta ++ ms) ["-o", out, "-c", "css/style.css", "-c", "css/layout.css",
                                "-t", "html", "-s", "--template", "resources/page.tmpl",
                                "-f", "markdown", "--standalone", "--toc", "--toc-depth=2",
                                "--highlight-style", "pygments", "--mathjax"]
