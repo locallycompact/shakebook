@@ -7,7 +7,8 @@ import Development.Shake.Util
 
 site    = "public"
 browser = "chromium"
-meta = ["meta.txt"]
+
+meta  = ["meta.txt"]
 
 css   = ["css/*.css"]
 fonts = ["fonts/*.ttf"]
@@ -54,7 +55,7 @@ main = shakeArgs shakeOptions $ do
     imgs  <- getImages
     js    <- getJSFiles
     let cssOpts = css >>= (\x -> ["-c", x])
-    need $ (site </>) <$> (css ++ fonts ++ imgs ++ js)
+    need $ map (site </>) $ css ++ fonts ++ imgs ++ js
     pandoc out $ ["--template", htemplate,
                   "-t", "html", "-f", "markdown",
                   "--highlight-style", "pygments",
