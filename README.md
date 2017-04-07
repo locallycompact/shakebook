@@ -4,5 +4,5 @@ This is an example of a Gitbook Template using pandoc and shake.
 
 How to use:
 
-    cabal install pandoc shake
-    shake test
+    stack install pandoc shake
+    stack exec shake test

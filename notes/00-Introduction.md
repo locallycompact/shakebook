@@ -10,12 +10,12 @@ $x^2 + y^2 = e^{i\theta}$
 
 ## Testing Locally
 
-You will need haskell and cabal, you will also need to install pandoc and shake with:
+You will need haskell and stack, you will also need to install pandoc and shake with:
 
-    cabal install pandoc shake
+    stack install pandoc shake
 
 You can then test this in chromium by doing
 
-    shake test
+    stack exec shake test
 
 or change the browser by editing the Shakefile.hs.
