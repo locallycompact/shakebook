@@ -7,6 +7,7 @@ import Development.Shake.Util
 
 site    = "public"
 browser = "chromium"
+meta = ["meta.txt"]
 
 css   = ["css/*.css"]
 fonts = ["fonts/*.ttf"]
@@ -26,13 +27,16 @@ getMarkdownFiles = getDirectoryFiles "" mdwn
 
 supportingFile = flip copyFile' <*> dropDirectory1
 
+pandoc out opts = do
+  mdwn <- getMarkdownFiles
+  need $ meta ++ mdwn
+  cmd "pandoc" (meta ++ mdwn) $ ["-o", out, "-s"] ++ opts
+
 main :: IO ()
 main = shakeArgs shakeOptions $ do
   let index  = site </> "index.html"
   let pdf    = site </> "book.pdf"
   let beamer = site </> "beamer.pdf"
-
-  let meta = ["meta.txt"]
 
   want [index]
 
@@ -49,24 +53,16 @@ main = shakeArgs shakeOptions $ do
     fonts <- getFonts
     imgs  <- getImages
     js    <- getJSFiles
-    mdwn  <- getMarkdownFiles
     let cssOpts = css >>= (\x -> ["-c", x])
     need $ (site </>) <$> (css ++ fonts ++ imgs ++ js)
-    need $ meta ++ mdwn
-    cmd "pandoc" (meta ++ mdwn) $ ["-o", out, "-s", "--template", htemplate,
-                                   "-t", "html", "-f", "markdown",
-                                   "--highlight-style", "pygments",
-                                   "--mathjax"] ++ cssOpts ++ tocOpts
+    pandoc out $ ["--template", htemplate,
+                  "-t", "html", "-f", "markdown",
+                  "--highlight-style", "pygments",
+                  "--mathjax"] ++ cssOpts ++ tocOpts
 
-  pdf %> \out -> do
-    mdwn <- getMarkdownFiles
-    need $ meta ++ mdwn
-    cmd "pandoc" (meta ++ mdwn) $ ["-o", out, "-s"] ++ tocOpts
+  pdf %> flip pandoc tocOpts
 
-  beamer %> \out -> do
-    mdwn <- getMarkdownFiles
-    need $ meta ++ mdwn
-    cmd "pandoc" (meta ++ mdwn) ["-o", out, "-s", "-t", "beamer"]
+  beamer %> flip pandoc ["-t", "beamer"]
 
   phony "pdf" $ need [pdf]
 
