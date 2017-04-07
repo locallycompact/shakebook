@@ -56,6 +56,7 @@ main = shakeArgs shakeOptions $ do
     js    <- getJSFiles
     let cssOpts = css >>= (\x -> ["-c", x])
     need $ map (site </>) $ css ++ fonts ++ imgs ++ js
+    need [htemplate]
     pandoc out $ ["--template", htemplate,
                   "-t", "html", "-f", "markdown",
                   "--highlight-style", "pygments",
