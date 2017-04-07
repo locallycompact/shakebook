@@ -11,6 +11,7 @@ browser = "chromium"
 css   = ["css/*.css"]
 fonts = ["fonts/*.ttf"]
 imgs  = ["img/*.png"]
+js    = ["js/*.js"]
 mdwn  = ["notes//*.md"]
 
 htemplate = "resources/page.tmpl"
@@ -20,6 +21,7 @@ tocOpts = ["--toc", "--toc-depth=2"]
 getCSSFiles      = getDirectoryFiles "" css
 getFonts         = getDirectoryFiles "" fonts
 getImages        = getDirectoryFiles "" imgs
+getJSFiles       = getDirectoryFiles "" js
 getMarkdownFiles = getDirectoryFiles "" mdwn
 
 supportingFile = flip copyFile' <*> dropDirectory1
@@ -38,7 +40,7 @@ main = shakeArgs shakeOptions $ do
     putNormal $ "Cleaning files in " ++ site
     removeFilesAfter "." [site]
 
-  let supports = map (site </>) $ css ++ fonts ++ imgs
+  let supports = map (site </>) $ css ++ fonts ++ imgs ++ js
 
   forM supports $ flip (%>) supportingFile
 
@@ -46,9 +48,10 @@ main = shakeArgs shakeOptions $ do
     css   <- getCSSFiles
     fonts <- getFonts
     imgs  <- getImages
+    js    <- getJSFiles
     mdwn  <- getMarkdownFiles
     let cssOpts = css >>= (\x -> ["-c", x])
-    need $ (site </>) <$> (css ++ fonts ++ imgs)
+    need $ (site </>) <$> (css ++ fonts ++ imgs ++ js)
     need $ meta ++ mdwn
     cmd "pandoc" (meta ++ mdwn) $ ["-o", out, "-s", "--template", htemplate,
                                    "-t", "html", "-f", "markdown",
