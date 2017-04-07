@@ -1,4 +1,4 @@
-import Control.Arrow
+import Control.Applicative
 import Development.Shake
 import Development.Shake.Command
 import Development.Shake.FilePath
@@ -11,7 +11,7 @@ styleFiles = ["css/*.css", "fonts/*.ttf", "img/*.png"]
 styleDeps = map (site </>) <$> getDirectoryFiles "" styleFiles
 
 copy :: FilePattern -> Rules ()
-copy pattern = site </> pattern %> uncurry copyFile' . (dropDirectory1 &&& id)
+copy pattern = site </> pattern %> flip copyFile' <*> dropDirectory1
 
 getMarkdownFiles = getDirectoryFiles "" ["notes//*.md"]
 
