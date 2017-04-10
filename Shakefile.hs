@@ -37,7 +37,7 @@ main :: IO ()
 main = shakeArgs shakeOptions $ do
   let index  = site </> "index.html"
   let pdf    = site </> "book.pdf"
-  let beamer = site </> "beamer.pdf"
+  let beamer = site </> "slides.pdf"
 
   want [index]
 
