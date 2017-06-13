@@ -1,4 +1,4 @@
-image: fullmetalhaskell/multitool:1.0
+image: fullmetalhaskell/pandoc
 
 pages:
   stage: deploy
