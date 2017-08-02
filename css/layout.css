@@ -71,7 +71,7 @@ nav #toggle {
 }
 
 
-#main-wrapper {
+main {
   position: fixed;
   top: 0;
   right: 0;
@@ -82,7 +82,7 @@ nav #toggle {
   -webkit-overflow-scrolling: touch;
 }
 
-#main {
+article {
   padding: 20px;
   max-width: 800px;
 }
@@ -144,7 +144,7 @@ nav #toggle {
   nav.expanded #toggle:before {
     content: 'Close';
   }
-  #main-wrapper {
+  main {
     top: 50px;
     left: 0;
   }

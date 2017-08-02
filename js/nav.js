@@ -14,7 +14,7 @@ $(function () {
   });
 
   // TABLES
-  $('#main table').each(function () {
+  $('article table').each(function () {
     var $table = $(this).wrap('<div class="overflow-table"></div>');
   });
 
