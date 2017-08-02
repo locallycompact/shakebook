@@ -2,14 +2,14 @@ $(function () {
 
   // NAV
 
-  var $sidebar = $('#sidebar-wrapper');
-  var $toggle = $('#toggle-sidebar');
+  var $sidebar = $('nav');
+  var $toggle = $('#toggle');
 
   $toggle.click(function () {
     $sidebar.toggleClass('expanded');
   });
 
-  $sidebar.find('.sidebar-nav a').click(function () {
+  $sidebar.find('a').click(function () {
     $sidebar.removeClass('expanded');
   });
 
