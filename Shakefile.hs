@@ -1,4 +1,3 @@
-import Control.Applicative
 import Control.Monad
 import Development.Shake
 import Development.Shake.Command
@@ -28,6 +27,8 @@ getMarkdownFiles = getDirectoryFiles "" mdwn
 
 supportingFile = flip copyFile' <*> dropDirectory1
 
+carryToSite = map (site </>)
+
 pandoc out opts = do
   mdwn <- getMarkdownFiles
   need $ meta ++ mdwn
@@ -45,7 +46,7 @@ main = shakeArgs shakeOptions $ do
     putNormal $ "Cleaning files in " ++ site
     removeFilesAfter "." [site]
 
-  let supports = map (site </>) $ css ++ fonts ++ imgs ++ js
+  let supports = carryToSite $ join [css, fonts, imgs, js]
 
   forM supports $ flip (%>) supportingFile
 
@@ -55,7 +56,7 @@ main = shakeArgs shakeOptions $ do
     imgs  <- getImages
     js    <- getJSFiles
     let cssOpts = css >>= (\x -> ["-c", x])
-    need $ map (site </>) $ css ++ fonts ++ imgs ++ js
+    need $ carryToSite $ join [css, fonts, imgs, js]
     need [htemplate]
     pandoc out $ ["--template", htemplate,
                   "-t", "html", "-f", "markdown",
@@ -66,10 +67,6 @@ main = shakeArgs shakeOptions $ do
 
   beamer %> flip pandoc ["-t", "beamer"]
 
-  phony "pdf" $ need [pdf]
-
+  phony "pdf"    $ need [pdf]
   phony "beamer" $ need [beamer]
-
-  phony "test" $ do
-    need [index]
-    cmd browser index
+  phony "test"   $ need [index] >> cmd browser index
