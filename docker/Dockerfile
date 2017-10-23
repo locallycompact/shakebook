@@ -5,10 +5,10 @@ RUN apt-get update
 RUN apt-get install xz-utils make
 RUN stack upgrade
 RUN stack update
-RUN stack setup   --resolver ${resolver} --install-ghc
-RUN stack install --resolver ${resolver} shake
+RUN stack setup   ${resolver:+--resolver} $resolver --install-ghc
+RUN stack install ${resolver:+--resolver} $resolver shake
 RUN apt install -y context
 RUN apt install -y texlive
-RUN stack install --resolver ${resolver} pandoc
+RUN stack install ${resolver:+--resolver} $resolver pandoc
 
 CMD ["bash"]
