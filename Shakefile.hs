@@ -19,6 +19,8 @@ htemplate = "resources/page.tmpl"
 
 tocOpts = ["--toc", "--toc-depth=2"]
 
+margin = "3cm"
+
 getCSSFiles      = getDirectoryFiles "" css
 getFonts         = getDirectoryFiles "" fonts
 getImages        = getDirectoryFiles "" imgs
@@ -63,7 +65,7 @@ main = shakeArgs shakeOptions $ do
                   "--highlight-style", "pygments",
                   "--mathjax"] ++ cssOpts ++ tocOpts
 
-  pdf %> flip pandoc tocOpts
+  pdf %> flip pandoc (tocOpts ++ ["--variable", "geometry:margin=" ++ margin])
 
   beamer %> flip pandoc ["-t", "beamer"]
 
