@@ -1,4 +1,4 @@
-image: fullmetalhaskell/pandoc:lts-10.5
+image: fullmetalhaskell/pandoc:lts-9.0
 
 pages:
   stage: deploy
