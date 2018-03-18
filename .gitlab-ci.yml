@@ -1,4 +1,4 @@
-image: fullmetalhaskell/pandoc:lts-10.9
+image: fullmetalhaskell/pandoc:nightly-2018-03-18
 
 pages:
   stage: deploy
