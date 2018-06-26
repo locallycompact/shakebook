@@ -1,6 +1,8 @@
-# Pandoc/Shake Gitbook Template
+# gitbook-template
 
-This is an example of a Gitbook Template using pandoc and shake.
+This is a simple [shake](https://shakebuild.com) project for making gitbooks in
+markdown and [pandoc](https://pandoc.org/). It automatically compiles in
+gitlab's CI to produce an HTML book.
 
 How to use:
 
