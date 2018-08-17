@@ -23,6 +23,7 @@ dependencies:
 - lens
 - rio
 - pandoc
+- pandoc-types
 - shake
 - slick
 - yaml

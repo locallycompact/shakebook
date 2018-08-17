@@ -1,8 +1,9 @@
-{-# LANGUAGE DeriveAnyClass      #-}
-{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
 
 import Control.Lens
 import Data.Default
@@ -12,16 +13,19 @@ import Development.Shake.Command
 import Development.Shake.FilePath
 import Development.Shake.Util
 import RIO hiding (view)
-import RIO.ByteString.Lazy as LBS
+import qualified RIO.ByteString.Lazy as LBS
 import RIO.Text as Text
 import RIO.Set as Set
 import Slick
 import Text.Pandoc.Class
+import Text.Pandoc.Definition
 import Text.Pandoc.PDF
 import Text.Pandoc.Options
 import Text.Pandoc.Templates
 import Text.Pandoc.Readers
 import Text.Pandoc.Writers
+
+--- Global Configuration -----------------------------------------------------------
 
 site :: FilePath
 site = "public"
@@ -29,37 +33,31 @@ site = "public"
 browser :: FilePath
 browser = "chromium"
 
-meta :: [FilePath]
+meta :: [FilePattern]
 meta  = ["meta.txt"]
 
-css :: [FilePath]
+css :: [FilePattern]
 css = ["css/*.css"]
 
-fonts :: [FilePath]
+fonts :: [FilePattern]
 fonts = ["fonts/*.ttf"]
 
-imgs :: [FilePath]
+imgs :: [FilePattern]
 imgs  = ["img/*.png"]
 
-js :: [FilePath]
+js :: [FilePattern]
 js  = ["js/*.js"]
 
-mdwn :: [FilePath]
+mdwn :: [FilePattern]
 mdwn  = ["notes//*.md"]
 
 htemplate :: FilePath
 htemplate = "resources/page.tmpl"
 
-tocOpts :: [String]
-tocOpts = ["--toc", "--toc-depth=2"]
-
 margin :: String
 margin = "3cm"
 
-getCSSFiles      = getDirectoryFiles "" css
-getFonts         = getDirectoryFiles "" fonts
-getImages        = getDirectoryFiles "" imgs
-getJSFiles       = getDirectoryFiles "" js
+--- Verbatim Files ------------------------------------------------------------
 
 verbatim :: Iso' FilePath FilePath
 verbatim = iso (site </>) dropDirectory1
@@ -67,15 +65,59 @@ verbatim = iso (site </>) dropDirectory1
 copyVerbatim :: FilePath -> Action ()
 copyVerbatim = flip copyFile' <*> (view . from $ verbatim)
 
-pandocCmd :: [FilePath] -> [String] -> FilePath -> Action ()
-pandocCmd files opts out = command [] "pandoc" $ files <> ["-o", out, "-s"] <> opts
+getCSSFiles      = getDirectoryFiles "" css
+getFonts         = getDirectoryFiles "" fonts
+getImages        = getDirectoryFiles "" imgs
+getJSFiles       = getDirectoryFiles "" js
 
-compileMarkdown :: [FilePath] -> [String] -> FilePath -> Action ()
-compileMarkdown mdwn opts out = getDirectoryFiles "" mdwn >>= \x -> pandocCmd x opts out
+--- Pandoc Options -------------------------------------------------------------
+
+markdownReaderOptions :: ReaderOptions
+markdownReaderOptions = def {readerExtensions = pandocExtensions }
+
+latexWriterOptions :: WriterOptions
+latexWriterOptions = def { writerTableOfContents = True }
+
+beamerWriterOptions :: WriterOptions
+beamerWriterOptions = def { writerVariables = [("fonttheme", "serif")] }
+
+html5WriterOptions :: WriterOptions
+html5WriterOptions = def { writerTableOfContents = True }
+
+--- PDF Compilation ------------------------------------------------------------
+
+compileMarkdown mdwn act out = do
+  x <- getDirectoryFiles "" mdwn
+  y <- mapM readFile' x
+  f <- act . Text.pack . join $ y
+  LBS.writeFile out f
+
+makePDFWith mdwn writer writerOptions template = compileMarkdown mdwn $ \x -> do
+  f <- liftIO . runIOorExplode $ do
+    p <- readMarkdown markdownReaderOptions x
+    k <- template
+    makePDF "pdflatex" [] writer writerOptions { writerTemplate = Just k } p
+  either (fail . show) return f
+
+makePDFBeamer :: [FilePattern] -> FilePath -> Action ()
+makePDFBeamer mdwn = makePDFWith mdwn writeBeamer beamerWriterOptions (getDefaultTemplate "beamer")
+
+makePDFLaTeX :: [FilePattern] -> FilePath -> Action ()
+makePDFLaTeX mdwn = makePDFWith mdwn writeLaTeX latexWriterOptions (getDefaultTemplate "latex")
+
+--- HTML Compilation --------------------------------------------------------
+
+makeHTML5With mdwn writer writerOptions template = compileMarkdown mdwn $ \x -> do
+  k <- template
+  (v :: Page) <- loadUsing' (readMarkdown markdownReaderOptions)
+                             (writer writerOptions { writerTemplate = Just k }) x
+  return $ LBS.fromStrict $ encodeUtf8 (content v)
 
 data Page = Page {
   content :: Text
 } deriving (Eq, Show, Generic, FromJSON, ToJSON)
+
+--- Just Shake To Build ------------------------------------------------------
 
 main :: IO ()
 main = shakeArgs shakeOptions $ do
@@ -99,25 +141,13 @@ main = shakeArgs shakeOptions $ do
     fonts <- getFonts
     imgs  <- getImages
     js    <- getJSFiles
-    let cssOpts = css >>= (\x -> ["-c", x])
     need $ view verbatim <$> join [css, fonts, imgs, js]
     need [htemplate]
-    let opts = ["--template", htemplate,
-                "-t", "html", "-f", "markdown",
-                "--highlight-style", "pygments",
-                "--mathjax"] ++ cssOpts ++ tocOpts
-    compileMarkdown mdwn opts out
+    makeHTML5With (mdwn <> meta) writeHtml5String html5WriterOptions { writerVariables = ("css",) <$> css } (readFile' htemplate) out
 
-  pdf %> \out -> do
-    x <- getDirectoryFiles "" mdwn
-    y <- mapM readFile' $ meta <> x
-    f <- liftIO $ runIOorExplode $ do
-      p <- readMarkdown def {readerExtensions = pandocExtensions} (Text.pack $ join y)
-      d <- getDefaultTemplate "latex"
-      makePDF "pdflatex" [] writeLaTeX def {writerTemplate=Just d, writerTableOfContents = True} p
-    either (fail . show) return f >>=  LBS.writeFile out
+  pdf %> makePDFLaTeX (mdwn <> meta)
 
-  beamer %> compileMarkdown mdwn ["-t", "beamer"]
+  beamer %> makePDFBeamer (mdwn <> meta)
 
   phony "pdf"    $ need [pdf]
   phony "beamer" $ need [beamer]
