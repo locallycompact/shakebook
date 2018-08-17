@@ -3,4 +3,4 @@ title: Pandoc/Shake Gitbook Template
 author: Your Name Goes Here
 date: 2018-06-26
 version: June 2018
-...
+---

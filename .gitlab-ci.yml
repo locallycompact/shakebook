@@ -1,8 +1,9 @@
-image: zenhaskell/pandoc:nightly-2018-06-26
+image: zenhaskell/pandoc:lts-12.6
 
 pages:
   stage: deploy
   script:
+  - stack build
   - stack exec shake pdf
   - stack exec shake beamer
   - stack exec shake
