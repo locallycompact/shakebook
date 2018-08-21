@@ -36,18 +36,6 @@ browser = "chromium"
 meta :: [FilePattern]
 meta = ["meta.txt"]
 
-css :: [FilePattern]
-css = ["css/*.css"]
-
-fonts :: [FilePattern]
-fonts = ["fonts/*.ttf"]
-
-imgs :: [FilePattern]
-imgs = ["img/*.png"]
-
-js :: [FilePattern]
-js = ["js/*.js"]
-
 mdwn :: [FilePattern]
 mdwn = ["notes//*.md"]
 
@@ -59,16 +47,68 @@ margin = "3cm"
 
 --- Verbatim Files ------------------------------------------------------------
 
+fonts :: [FilePattern]
+fonts = ["fonts/*.ttf"]
+
+imgs :: [FilePattern]
+imgs = ["img/*.png"]
+
+js :: [FilePattern]
+js = ["js/*.js"]
+
 verbatim :: Iso' FilePath FilePath
 verbatim = iso (site </>) dropDirectory1
 
 copyVerbatim :: FilePath -> Action ()
 copyVerbatim = flip copyFile' <*> (view . from $ verbatim)
 
-getCSSFiles = getDirectoryFiles "" css
+getFonts :: Action [FilePath]
 getFonts = getDirectoryFiles "" fonts
+
+getImages :: Action [FilePath]
 getImages = getDirectoryFiles "" imgs
+
+getJSFiles :: Action [FilePath]
 getJSFiles = getDirectoryFiles "" js
+
+verbatimFileRules :: Rules ()
+verbatimFileRules = forM_ (view verbatim <$> join [fonts, imgs, js]) (%> copyVerbatim)
+
+--- CSS ------------------------------------------------------------------------
+
+css :: [FilePattern]
+css = ["css/*.hs"]
+
+getCSSFiles :: Action [FilePath]
+getCSSFiles = getDirectoryFiles "" css
+
+hsToCss :: Iso' FilePath FilePath
+hsToCss = iso ((site </>) . (-<.> ".css")) (dropDirectory1 . (-<.> ".hs"))
+
+compileCss :: FilePath -> Action ()
+compileCss x = do
+  Stdout z <- command [] ((view . from) hsToCss x) []
+  writeFile' x z
+
+cssRules :: Rules ()
+cssRules = forM_ (view hsToCss <$> css) (%> compileCss)
+
+--- R Plots --------------------------------------------------------------------
+
+plots :: [FilePattern]
+plots = ["plots/*.hs"]
+
+plotToPng :: Iso' FilePath FilePath
+plotToPng = iso ((site </>) . (-<.> ".png")) (dropDirectory1 . (-<.> ".hs"))
+
+getPlots :: Action [FilePath]
+getPlots = getDirectoryFiles "" plots
+
+compilePlot :: FilePath -> Action ()
+compilePlot x = command [] ((view . from) plotToPng x) ["-o", x] 
+
+plotRules :: Rules ()
+plotRules = forM_ (view plotToPng <$> plots) (%> compilePlot)
 
 --- Pandoc Options -------------------------------------------------------------
 
@@ -123,22 +163,25 @@ main = shakeArgs shakeOptions $ do
     putNormal $ "Cleaning files in " ++ site
     removeFilesAfter "." [site]
 
-  let supports  = join [css, fonts, imgs, js]
-  let supportsT = view verbatim <$> supports
-
-  forM_ supportsT $ flip (%>) copyVerbatim
+  verbatimFileRules
+  cssRules
+  plotRules
 
   index %> \out -> do
     css   <- getCSSFiles
     fonts <- getFonts
     imgs  <- getImages
     js    <- getJSFiles
-    need $ view verbatim <$> join [css, fonts, imgs, js]
+    plots <- getPlots
+    need $ view verbatim <$> join [fonts, imgs, js]
+    need $ view hsToCss <$> css
+    need $ view plotToPng <$> plots
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x
     t <- readFile' htemplate
+    putNormal $ show css
     f <- makeHTML5Page (Text.pack . join $ y)
-                       html5WriterOptions { writerVariables = ("css", ) <$> css , writerTemplate = Just t }
+                       html5WriterOptions { writerVariables = ("css", ) <$> (dropDirectory1 . view hsToCss <$> css) , writerTemplate = Just t }
     LBS.writeFile out f
 
   pdf %> \out -> do
