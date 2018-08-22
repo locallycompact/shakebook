@@ -5,7 +5,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Clay as C
-import RIO hiding (display, (&))
+import RIO hiding (display, div, (&))
 
 main = putCss $ do
   html <> body ? do
@@ -53,3 +53,19 @@ main = putCss $ do
     fontSize (pct 200)
     textAlign center
     paddingBottom (px 0)
+  ".document-version" ? do
+    fontSize (pct 150)
+    color    "#666666"
+    textAlign center
+    marginTop (px 0)
+  ".author" ? do
+    color    "#666666"
+    fontWeight bold
+    textAlign center 
+  img ? do
+    margin (px 0) auto (px 0) auto
+  ul # ".sections" ? do
+    padding (px 0) (px 0) (px 5) (px 0)
+    margin (px 0) (px 0) (px 0) (px 0)
+    li <? div <? do
+      boxSizing borderBox

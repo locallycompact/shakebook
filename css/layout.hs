@@ -44,15 +44,15 @@ main = putCss $ do
     margin (px 0) (px 0) (px 0) (px 0)
     padding (px 0) (px 0) (px 0) (px 0)
     fontSize (px 13)
-    "li" ? "a" ? do
+    li ? a ? do
       display block
       textDecoration none
       color inherit
       ":hover" & textDecoration underline
-    "ul" ? do
+    ul ? do
       listStyleType circleListStyle
       padding (px 10) (px 10) (px 10) (px 20)
-    "ul" <? do
+    ul <? do
       listStyleType none
       padding (px 0) (px 0) (px 10) (px 0)
-      "li" <? "a" <? fontWeight bold
+      li <? a <? fontWeight bold
