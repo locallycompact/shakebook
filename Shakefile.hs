@@ -1,9 +1,9 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveAnyClass      #-}
+{-# LANGUAGE DeriveGeneric       #-}
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TupleSections       #-}
 
 import           Control.Lens
 import           Data.Default
@@ -110,6 +110,23 @@ compilePlot x = command [] ((view . from) plotToPng x) ["-o", x]
 plotRules :: Rules ()
 plotRules = forM_ (view plotToPng <$> plots) (%> compilePlot)
 
+--- Diagrams -------------------------------------------------------------------
+
+diagrams :: [FilePattern]
+diagrams = ["diagrams/*.hs"]
+
+diagramToSvg :: Iso' FilePath FilePath
+diagramToSvg = iso ((site </>) . (-<.> ".svg")) (dropDirectory1 . (-<.> ".hs"))
+
+getDiagrams :: Action [FilePath]
+getDiagrams = getDirectoryFiles "" diagrams
+
+compileDiagram :: FilePath -> Action ()
+compileDiagram x = command [] ((view . from) diagramToSvg x) ["-o", x, "-w", "400", "-h", "400"]
+
+diagramRules :: Rules ()
+diagramRules = forM_ (view diagramToSvg <$> diagrams) (%> compileDiagram)
+  
 --- Pandoc Options -------------------------------------------------------------
 
 markdownReaderOptions :: ReaderOptions
@@ -166,6 +183,7 @@ main = shakeArgs shakeOptions $ do
   verbatimFileRules
   cssRules
   plotRules
+  diagramRules
 
   index %> \out -> do
     css   <- getCSSFiles
@@ -173,9 +191,11 @@ main = shakeArgs shakeOptions $ do
     imgs  <- getImages
     js    <- getJSFiles
     plots <- getPlots
+    diagrams <- getDiagrams
     need $ view verbatim <$> join [fonts, imgs, js]
     need $ view hsToCss <$> css
     need $ view plotToPng <$> plots
+    need $ view diagramToSvg <$> diagrams
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x
     t <- readFile' htemplate
@@ -185,6 +205,10 @@ main = shakeArgs shakeOptions $ do
     LBS.writeFile out f
 
   pdf %> \out -> do
+    plots <- getPlots
+    diagrams <- getDiagrams
+    need $ view plotToPng <$> plots
+    need $ view diagramToSvg <$> diagrams
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x
     f <- liftIO . runIOorExplode $ do
@@ -193,6 +217,10 @@ main = shakeArgs shakeOptions $ do
     LBS.writeFile out f
 
   beamer %> \out -> do
+    plots <- getPlots
+    diagrams <- getDiagrams
+    need $ view plotToPng <$> plots
+    need $ view diagramToSvg <$> diagrams
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x 
     f <- liftIO . runIOorExplode $ do
