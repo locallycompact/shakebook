@@ -23,13 +23,33 @@ main = putCss $ do
     lineHeight (px 1.1)
     margin (em 1) (em 0) (em 0.5) (em 0)
   h1 ? do
-    padding (em 1) (em 0) (em 0) (em 0)
+    padding (em 1) (em 0) (em 1) (em 0)
     margin (px 0) (px 0) (px 0) (px 0)
     textAlign center
     fontSize (pct 250)
   h2 ? do
     fontSize (pct 175)
+    padding (em 0.5) (em 0) (em 0.5) (em 0)
+    margin (px 0) (px 0) (px 0) (px 0)
   h3 ? do
     fontSize (pct 150)
   h4 ? do
     fontSize (pct 125)
+  pre ? do
+    padding (px 10) (px 20) (px 10) (px 20)
+    margin (px 0) (px 0) (px 0) (px 0)
+    code ? do
+      fontFamily ["Source Code Pro"] [monospace]
+      fontSize (px 13)
+  code ? do
+    color inherit
+    backgroundColor inherit
+  img ? do
+    maxWidth (pct 100)
+    height auto
+  hr ? do
+    borderBottom solid (px 1) "#EEEEEE"
+  ".document-title" ? do
+    fontSize (pct 200)
+    textAlign center
+    paddingBottom (px 0)

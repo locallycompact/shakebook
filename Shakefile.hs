@@ -87,7 +87,9 @@ hsToCss = iso ((site </>) . (-<.> ".css")) (dropDirectory1 . (-<.> ".hs"))
 
 compileCss :: FilePath -> Action ()
 compileCss x = do
-  Stdout z <- command [] ((view . from) hsToCss x) []
+  let src = (view . from) hsToCss x
+  need [src]
+  Stdout z <- command [] src []
   writeFile' x z
 
 cssRules :: Rules ()
@@ -105,7 +107,10 @@ getPlots :: Action [FilePath]
 getPlots = getDirectoryFiles "" plots
 
 compilePlot :: FilePath -> Action ()
-compilePlot x = command [] ((view . from) plotToPng x) ["-o", x] 
+compilePlot x = do
+  let src = (view . from) plotToPng x
+  need [src]
+  command [] src ["-o", x] 
 
 plotRules :: Rules ()
 plotRules = forM_ (view plotToPng <$> plots) (%> compilePlot)
@@ -122,7 +127,10 @@ getDiagrams :: Action [FilePath]
 getDiagrams = getDirectoryFiles "" diagrams
 
 compileDiagram :: FilePath -> Action ()
-compileDiagram x = command [] ((view . from) diagramToSvg x) ["-o", x, "-w", "400", "-h", "400"]
+compileDiagram x = do
+  let src = (view . from) diagramToSvg x
+  need [src]
+  command [] src ["-o", x, "-w", "400", "-h", "400"]
 
 diagramRules :: Rules ()
 diagramRules = forM_ (view diagramToSvg <$> diagrams) (%> compileDiagram)
