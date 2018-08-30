@@ -71,19 +71,25 @@ getImages = getDirectoryFiles "" imgs
 getJSFiles :: Action [FilePath]
 getJSFiles = getDirectoryFiles "" js
 
-verbatimFileRules :: Rules ()
-verbatimFileRules = forM_ (view verbatim <$> join [fonts, imgs, js]) (%> copyVerbatim)
+staticFileDeployRules :: Rules ()
+staticFileDeployRules = forM_ (view verbatim <$> join [fonts, imgs, js]) (%> copyVerbatim)
 
 --- CSS ------------------------------------------------------------------------
 
-css :: [FilePattern]
-css = ["css/*.hs"]
+hsCssSrc :: [FilePattern]
+hsCssSrc = ["css/*.hs"]
 
 getCSSFiles :: Action [FilePath]
-getCSSFiles = getDirectoryFiles "" css
+getCSSFiles = getDirectoryFiles "" hsCssSrc
 
 hsToCss :: Iso' FilePath FilePath
-hsToCss = iso ((site </>) . (-<.> ".css")) (dropDirectory1 . (-<.> ".hs"))
+hsToCss = iso (-<.> ".css") (-<.> ".hs")
+
+hsCssResult :: [FilePattern]
+hsCssResult = view hsToCss <$> hsCssSrc
+
+hsCssDeploy :: [FilePattern]
+hsCssDeploy = view verbatim <$> hsCssResult
 
 compileCss :: FilePath -> Action ()
 compileCss x = do
@@ -92,8 +98,11 @@ compileCss x = do
   Stdout z <- command [] src []
   writeFile' x z
 
-cssRules :: Rules ()
-cssRules = forM_ (view hsToCss <$> css) (%> compileCss)
+cssCompileRules :: Rules ()
+cssCompileRules = forM_ hsCssResult (%> compileCss)
+
+cssDeployRules :: Rules ()
+cssDeployRules = forM_ hsCssDeploy (%> copyVerbatim)
 
 --- R Plots --------------------------------------------------------------------
 
@@ -188,8 +197,9 @@ main = shakeArgs shakeOptions $ do
     putNormal $ "Cleaning files in " ++ site
     removeFilesAfter "." [site]
 
-  verbatimFileRules
-  cssRules
+  staticFileDeployRules
+  cssCompileRules
+  cssDeployRules
   plotRules
   diagramRules
 
@@ -201,15 +211,14 @@ main = shakeArgs shakeOptions $ do
     plots <- getPlots
     diagrams <- getDiagrams
     need $ view verbatim <$> join [fonts, imgs, js]
-    need $ view hsToCss <$> css
+    need $ view (hsToCss . verbatim) <$> css
     need $ view plotToPng <$> plots
     need $ view diagramToSvg <$> diagrams
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x
     t <- readFile' htemplate
-    putNormal $ show css
     f <- makeHTML5Page (Text.pack . join $ y)
-                       html5WriterOptions { writerVariables = ("css", ) <$> (dropDirectory1 . view hsToCss <$> css) , writerTemplate = Just t }
+                       html5WriterOptions { writerVariables = ("css", ) . view hsToCss <$> css , writerTemplate = Just t }
     LBS.writeFile out f
 
   pdf %> \out -> do
