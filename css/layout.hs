@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack runhaskell --package rio --package clay
+-- stack runhaskell --package rio --package clay --resolver lts-12.8
 
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}

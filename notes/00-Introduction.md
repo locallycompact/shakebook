@@ -14,13 +14,13 @@ $x^2 + y^2 = e^{i\theta}$
 
 Diagram generation with diagrams:
 
-![](diagrams/tournament.svg){width=400 height=400}
+![](diagrams/tournament.svg){width=200 height=200}
 
 ## Plots
 
 Plot generation with inline-r:
 
-![](plots/cluster.png)
+![](plots/cluster.png){width=200 height=200}
 
 # Testing Locally
 

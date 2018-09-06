@@ -71,8 +71,11 @@ getImages = getDirectoryFiles "" imgs
 getJSFiles :: Action [FilePath]
 getJSFiles = getDirectoryFiles "" js
 
+staticFileDeploy :: [FilePattern]
+staticFileDeploy = view (mapping verbatim) $ join [fonts, imgs, js]
+
 staticFileDeployRules :: Rules ()
-staticFileDeployRules = forM_ (view verbatim <$> join [fonts, imgs, js]) (%> copyVerbatim)
+staticFileDeployRules = forM_ staticFileDeploy (%> copyVerbatim)
 
 --- CSS ------------------------------------------------------------------------
 
@@ -86,10 +89,10 @@ hsToCss :: Iso' FilePath FilePath
 hsToCss = iso (-<.> ".css") (-<.> ".hs")
 
 hsCssResult :: [FilePattern]
-hsCssResult = view hsToCss <$> hsCssSrc
+hsCssResult = view (mapping hsToCss) hsCssSrc
 
 hsCssDeploy :: [FilePattern]
-hsCssDeploy = view verbatim <$> hsCssResult
+hsCssDeploy = view (mapping verbatim) hsCssResult
 
 compileCss :: FilePath -> Action ()
 compileCss x = do
@@ -109,11 +112,17 @@ cssDeployRules = forM_ hsCssDeploy (%> copyVerbatim)
 plots :: [FilePattern]
 plots = ["plots/*.hs"]
 
-plotToPng :: Iso' FilePath FilePath
-plotToPng = iso ((site </>) . (-<.> ".png")) (dropDirectory1 . (-<.> ".hs"))
-
 getPlots :: Action [FilePath]
 getPlots = getDirectoryFiles "" plots
+
+plotToPng :: Iso' FilePath FilePath
+plotToPng = iso (-<.> ".png") (-<.> ".hs")
+
+plotResult :: [FilePattern]
+plotResult = view (mapping plotToPng) plots
+
+plotDeploy :: [FilePattern]
+plotDeploy = view (mapping verbatim) plotResult
 
 compilePlot :: FilePath -> Action ()
 compilePlot x = do
@@ -121,8 +130,11 @@ compilePlot x = do
   need [src]
   command [] src ["-o", x] 
 
-plotRules :: Rules ()
-plotRules = forM_ (view plotToPng <$> plots) (%> compilePlot)
+plotCompileRules :: Rules ()
+plotCompileRules = forM_ plotResult (%> compilePlot)
+
+plotDeployRules :: Rules ()
+plotDeployRules = forM_ plotDeploy (%> copyVerbatim)
 
 --- Diagrams -------------------------------------------------------------------
 
@@ -130,20 +142,29 @@ diagrams :: [FilePattern]
 diagrams = ["diagrams/*.hs"]
 
 diagramToSvg :: Iso' FilePath FilePath
-diagramToSvg = iso ((site </>) . (-<.> ".svg")) (dropDirectory1 . (-<.> ".hs"))
+diagramToSvg = iso (-<.> ".svg") (-<.> ".hs")
 
 getDiagrams :: Action [FilePath]
 getDiagrams = getDirectoryFiles "" diagrams
+
+diagramResult :: [FilePattern]
+diagramResult = view (mapping diagramToSvg) diagrams
+
+diagramDeploy :: [FilePattern]
+diagramDeploy = view (mapping verbatim) diagramResult
 
 compileDiagram :: FilePath -> Action ()
 compileDiagram x = do
   let src = (view . from) diagramToSvg x
   need [src]
-  command [] src ["-o", x, "-w", "400", "-h", "400"]
+  command [] src ["-o", x, "-w", "200", "-h", "200"]
 
-diagramRules :: Rules ()
-diagramRules = forM_ (view diagramToSvg <$> diagrams) (%> compileDiagram)
-  
+diagramCompileRules :: Rules ()
+diagramCompileRules = forM_ diagramResult (%> compileDiagram)
+
+diagramDeployRules :: Rules ()
+diagramDeployRules = forM_ diagramDeploy (%> copyVerbatim)
+
 --- Pandoc Options -------------------------------------------------------------
 
 markdownReaderOptions :: ReaderOptions
@@ -200,8 +221,10 @@ main = shakeArgs shakeOptions $ do
   staticFileDeployRules
   cssCompileRules
   cssDeployRules
-  plotRules
-  diagramRules
+  plotCompileRules
+  plotDeployRules
+  diagramCompileRules
+  diagramDeployRules
 
   index %> \out -> do
     css   <- getCSSFiles
@@ -210,10 +233,10 @@ main = shakeArgs shakeOptions $ do
     js    <- getJSFiles
     plots <- getPlots
     diagrams <- getDiagrams
-    need $ view verbatim <$> join [fonts, imgs, js]
-    need $ view (hsToCss . verbatim) <$> css
-    need $ view plotToPng <$> plots
-    need $ view diagramToSvg <$> diagrams
+    need $ view (mapping verbatim) $ join [fonts, imgs, js]
+    need $ view (mapping hsToCss) css
+    need $ view (mapping plotToPng) plots
+    need $ view (mapping diagramToSvg) diagrams
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x
     t <- readFile' htemplate
@@ -224,8 +247,8 @@ main = shakeArgs shakeOptions $ do
   pdf %> \out -> do
     plots <- getPlots
     diagrams <- getDiagrams
-    need $ view plotToPng <$> plots
-    need $ view diagramToSvg <$> diagrams
+    need $ view (mapping plotToPng) plots
+    need $ view (mapping diagramToSvg) diagrams
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x
     f <- liftIO . runIOorExplode $ do
@@ -236,8 +259,8 @@ main = shakeArgs shakeOptions $ do
   beamer %> \out -> do
     plots <- getPlots
     diagrams <- getDiagrams
-    need $ view plotToPng <$> plots
-    need $ view diagramToSvg <$> diagrams
+    need $ view (mapping plotToPng) plots
+    need $ view (mapping diagramToSvg) diagrams
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x 
     f <- liftIO . runIOorExplode $ do
