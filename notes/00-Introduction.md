@@ -39,12 +39,17 @@ Drawings with dihaa
 
 # Testing Locally
 
-You will need haskell and stack, you will also need to install pandoc and shake with:
+You will need stack.
 
-    stack install pandoc shake
+    stack build
 
 You can then test this in chromium by doing
 
-    stack exec shake test
+    stack exec -- site test
+
+You can build the pdf and slide copies with
+
+    stack exec -- site pdf
+    stack exec -- site beamer
 
 or change the browser by editing the Shakefile.hs.
