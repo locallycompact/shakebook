@@ -4,9 +4,9 @@ pages:
   stage: deploy
   script:
   - stack build
-  - stack exec shake pdf
-  - stack exec shake beamer
-  - stack exec shake
+  - stack exec -- site
+  - stack exec -- site pdf
+  - stack exec -- site beamer
   artifacts:
     paths:
     - public
