@@ -35,7 +35,7 @@ Plot generation with inline-r:
 
 Drawings with dihaa
 
-![](diagrams/drawing.png){width=400 height=400}
+![](drawings/system.asc.png){width=400 height=400}
 
 # Testing Locally
 

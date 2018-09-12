@@ -5,7 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections       #-}
 
-import           Control.Lens
+import           Control.Lens            hiding ((<.>))
 import           Data.Default
 import           Data.Yaml
 import           Development.Shake
@@ -95,8 +95,8 @@ hsToPng = iso (-<.> ".png") (-<.> ".hs")
 hsToSvg :: Iso' FilePath FilePath
 hsToSvg = iso (-<.> ".svg") (-<.> ".hs")
 
-ascToPng :: Iso' FilePath FilePath
-ascToPng = iso (-<.> ".png") (-<.> "asc")
+addPngExt :: Iso' FilePath FilePath
+addPngExt = iso (<.> ".png") dropExtension
 
 --- R Plots --------------------------------------------------------------------
 
@@ -150,32 +150,31 @@ diagramCompileRules = forM_ diagramResult (%> compileDiagram)
 diagramDeployRules :: Rules ()
 diagramDeployRules = forM_ diagramDeploy (%> copyVerbatim)
 
---- Dihaa ----------------------------------------------------------------------
+--- Dihaa Drawings ------------------------------------------------------------
 
-dihaas :: [FilePattern]
-dihaas = ["diagrams/*.asc"]
+drawings :: [FilePattern]
+drawings = ["drawings/*.asc"]
 
-getDihaas :: Action [FilePath]
-getDihaas = getDirectoryFiles "" dihaas
+getDrawings :: Action [FilePath]
+getDrawings = getDirectoryFiles "" drawings
 
-dihaaResult :: [FilePattern]
-dihaaResult = view (mapping ascToPng) dihaas
+drawingResult :: [FilePattern]
+drawingResult = view (mapping addPngExt) drawings
 
-dihaaDeploy :: [FilePattern]
-dihaaDeploy = view (mapping verbatim) dihaaResult
+drawingDeploy :: [FilePattern]
+drawingDeploy = view (mapping verbatim) drawingResult
 
-compileDihaa :: FilePath -> Action ()
-compileDihaa x = do
-  let src = (view . from) ascToPng x
+compileDrawing :: FilePath -> Action ()
+compileDrawing x = do
+  let src = (view . from) addPngExt x
   need [src]
-  command_ [] "dihaa" [src, "-p"]
-  renameFile (addExtension src "png") x
+  command [] "dihaa" [src, "-p"]
 
-dihaaCompileRules :: Rules ()
-dihaaCompileRules = forM_ dihaaResult (%> compileDihaa)
+drawingCompileRules :: Rules ()
+drawingCompileRules = forM_ drawingResult (%> compileDrawing)
 
-dihaaDeployRules :: Rules ()
-dihaaDeployRules = forM_ dihaaDeploy (%> copyVerbatim)
+drawingDeployRules :: Rules ()
+drawingDeployRules = forM_ drawingDeploy (%> copyVerbatim)
 
 --- Pandoc Options -------------------------------------------------------------
 
@@ -235,8 +234,8 @@ main = shakeArgs shakeOptions $ do
   plotDeployRules
   diagramCompileRules
   diagramDeployRules
-  dihaaCompileRules
-  dihaaDeployRules
+  drawingCompileRules
+  drawingDeployRules
 
   index %> \out -> do
     css   <- getCSSFiles
@@ -245,11 +244,11 @@ main = shakeArgs shakeOptions $ do
     js    <- getJSFiles
     plots <- getPlots
     diagrams <- getDiagrams
-    dihaas <- getDihaas
+    drawings <- getDrawings
     need $ view (mapping verbatim) $ join [fonts, imgs, js, css]
     need $ view (mapping (verbatim . hsToPng)) plots
     need $ view (mapping (verbatim . hsToSvg)) diagrams
-    need $ view (mapping (verbatim . ascToPng)) dihaas
+    need $ view (mapping (verbatim . addPngExt)) drawings
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x
     t <- readFile' htemplate
@@ -260,9 +259,10 @@ main = shakeArgs shakeOptions $ do
   pdf %> \out -> do
     plots <- getPlots
     diagrams <- getDiagrams
+    drawings <- getDrawings
     need $ view (mapping hsToPng) plots
     need $ view (mapping hsToSvg) diagrams
-    need $ view (mapping ascToPng) dihaas
+    need $ view (mapping addPngExt) drawings
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x
     f <- liftIO . runIOorExplode $ do
@@ -273,9 +273,10 @@ main = shakeArgs shakeOptions $ do
   beamer %> \out -> do
     plots <- getPlots
     diagrams <- getDiagrams
+    drawings <- getDrawings
     need $ view (mapping hsToPng) plots
     need $ view (mapping hsToSvg) diagrams
-    need $ view (mapping ascToPng) dihaas
+    need $ view (mapping addPngExt) drawings
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x 
     f <- liftIO . runIOorExplode $ do

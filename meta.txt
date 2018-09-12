@@ -1,5 +1,5 @@
 ---
-title: Shakedocs
+title: Shakebook Template
 author: Your Name Goes Here
 date: 2018-09-12
 version: September 2018
