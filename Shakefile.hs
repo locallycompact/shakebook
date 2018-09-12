@@ -77,22 +77,27 @@ staticFileDeploy = view (mapping verbatim) $ join [fonts, imgs, js]
 staticFileDeployRules :: Rules ()
 staticFileDeployRules = forM_ staticFileDeploy (%> copyVerbatim)
 
---- CSS ------------------------------------------------------------------------
-
-hsCssSrc :: [FilePattern]
-hsCssSrc = ["css/*.hs"]
-
-getCSSFiles :: Action [FilePath]
-getCSSFiles = getDirectoryFiles "" hsCssSrc
+--- Extension Isomorphisms -----------------------------------------------------
 
 hsToCss :: Iso' FilePath FilePath
 hsToCss = iso (-<.> ".css") (-<.> ".hs")
 
-hsCssResult :: [FilePattern]
-hsCssResult = view (mapping hsToCss) hsCssSrc
+hsToPng :: Iso' FilePath FilePath
+hsToPng = iso (-<.> ".png") (-<.> ".hs")
 
-hsCssDeploy :: [FilePattern]
-hsCssDeploy = view (mapping verbatim) hsCssResult
+hsToSvg :: Iso' FilePath FilePath
+hsToSvg = iso (-<.> ".svg") (-<.> ".hs")
+
+ascToPng :: Iso' FilePath FilePath
+ascToPng = iso (-<.> ".png") (-<.> "asc")
+
+--- CSS ------------------------------------------------------------------------
+
+cssResult :: [FilePattern]
+cssResult = view (mapping hsToCss) css
+
+cssDeploy :: [FilePattern]
+cssDeploy = view (mapping verbatim) cssResult
 
 compileCss :: FilePath -> Action ()
 compileCss x = do
@@ -102,10 +107,10 @@ compileCss x = do
   writeFile' x z
 
 cssCompileRules :: Rules ()
-cssCompileRules = forM_ hsCssResult (%> compileCss)
+cssCompileRules = forM_ cssResult (%> compileCss)
 
 cssDeployRules :: Rules ()
-cssDeployRules = forM_ hsCssDeploy (%> copyVerbatim)
+cssDeployRules = forM_ cssDeploy (%> copyVerbatim)
 
 --- R Plots --------------------------------------------------------------------
 
@@ -115,18 +120,15 @@ plots = ["plots/*.hs"]
 getPlots :: Action [FilePath]
 getPlots = getDirectoryFiles "" plots
 
-plotToPng :: Iso' FilePath FilePath
-plotToPng = iso (-<.> ".png") (-<.> ".hs")
-
 plotResult :: [FilePattern]
-plotResult = view (mapping plotToPng) plots
+plotResult = view (mapping hsToPng) plots
 
 plotDeploy :: [FilePattern]
 plotDeploy = view (mapping verbatim) plotResult
 
 compilePlot :: FilePath -> Action ()
 compilePlot x = do
-  let src = (view . from) plotToPng x
+  let src = (view . from) hsToPng x
   need [src]
   command [] src ["-o", x] 
 
@@ -141,21 +143,18 @@ plotDeployRules = forM_ plotDeploy (%> copyVerbatim)
 diagrams :: [FilePattern]
 diagrams = ["diagrams/*.hs"]
 
-diagramToSvg :: Iso' FilePath FilePath
-diagramToSvg = iso (-<.> ".svg") (-<.> ".hs")
-
 getDiagrams :: Action [FilePath]
 getDiagrams = getDirectoryFiles "" diagrams
 
 diagramResult :: [FilePattern]
-diagramResult = view (mapping diagramToSvg) diagrams
+diagramResult = view (mapping hsToSvg) diagrams
 
 diagramDeploy :: [FilePattern]
 diagramDeploy = view (mapping verbatim) diagramResult
 
 compileDiagram :: FilePath -> Action ()
 compileDiagram x = do
-  let src = (view . from) diagramToSvg x
+  let src = (view . from) hsToSvg x
   need [src]
   command [] src ["-o", x, "-w", "200", "-h", "200"]
 
@@ -164,6 +163,32 @@ diagramCompileRules = forM_ diagramResult (%> compileDiagram)
 
 diagramDeployRules :: Rules ()
 diagramDeployRules = forM_ diagramDeploy (%> copyVerbatim)
+
+--- Dihaa ----------------------------------------------------------------------
+
+dihaas :: [FilePattern]
+dihaas = ["diagrams/*.asc"]
+
+getDihaas :: Action [FilePath]
+getDihaas = getDirectoryFiles "" dihaas
+
+dihaaResult :: [FilePattern]
+dihaaResult = view (mapping ascToPng) dihaas
+
+dihaaDeploy :: [FilePattern]
+dihaaDeploy = view (mapping verbatim) dihaaResult
+
+compileDihaa :: FilePath -> Action ()
+compileDihaa x = do
+  let src = (view . from) ascToPng x
+  need [src]
+  command [] "dihaa" [src, "-p"]
+
+dihaaCompileRules :: Rules ()
+dihaaCompileRules = forM_ diagramResult (%> compileDihaa)
+
+dihaaDeployRules :: Rules ()
+dihaaDeployRules = forM_ diagramDeploy (%> copyVerbatim)
 
 --- Pandoc Options -------------------------------------------------------------
 
@@ -233,10 +258,12 @@ main = shakeArgs shakeOptions $ do
     js    <- getJSFiles
     plots <- getPlots
     diagrams <- getDiagrams
+    dihaas <- getDihaas
     need $ view (mapping verbatim) $ join [fonts, imgs, js]
-    need $ view (mapping hsToCss) css
-    need $ view (mapping plotToPng) plots
-    need $ view (mapping diagramToSvg) diagrams
+    need $ view (mapping (verbatim . hsToCss)) css
+    need $ view (mapping (verbatim . hsToPng)) plots
+    need $ view (mapping (verbatim . hsToSvg)) diagrams
+    need $ view (mapping (verbatim . ascToPng)) dihaas
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x
     t <- readFile' htemplate
@@ -247,8 +274,9 @@ main = shakeArgs shakeOptions $ do
   pdf %> \out -> do
     plots <- getPlots
     diagrams <- getDiagrams
-    need $ view (mapping plotToPng) plots
-    need $ view (mapping diagramToSvg) diagrams
+    need $ view (mapping hsToPng) plots
+    need $ view (mapping hsToSvg) diagrams
+    need $ view (mapping ascToPng) dihaas
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x
     f <- liftIO . runIOorExplode $ do
@@ -259,8 +287,9 @@ main = shakeArgs shakeOptions $ do
   beamer %> \out -> do
     plots <- getPlots
     diagrams <- getDiagrams
-    need $ view (mapping plotToPng) plots
-    need $ view (mapping diagramToSvg) diagrams
+    need $ view (mapping hsToPng) plots
+    need $ view (mapping hsToSvg) diagrams
+    need $ view (mapping ascToPng) dihaas
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x 
     f <- liftIO . runIOorExplode $ do

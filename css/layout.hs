@@ -5,7 +5,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Clay as C
-import RIO hiding (display, div, (&))
+import RIO hiding (display, div, (&), all)
 
 main = putCss $ do
   main_ ? do

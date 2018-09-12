@@ -3,3 +3,4 @@ packages:
 - .
 extra-deps:
 - slick-0.1.0.2@sha256:33d67b54e10815487bd5df04e61e091b52d090fab86d06aaef5c9c888258f342
+- dihaa-0.2.1.2@sha256:9aebce91d338b4c755e92253c1c6245a13c50470c08fa0e016a44adca4bb4479
