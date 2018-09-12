@@ -1,9 +1,13 @@
 # Hello World
 
-Shakebook is a robust documentation generator powered by shake, pandoc, latex,
-slick, inline-r, diagrams and dihaa, designed for gitlab-ci. Shakebook is
-"open-hood", meaning there's no api surface. Everything you need is in the
-Shakefile and the supporting periphery.
+Shakebook is a robust documentation generator powered by
+[shake](https://shakebuild.com/), [pandoc](https://pandoc.org/)
+[slick](https://hackage.haskell.org/package/slick),
+[inline-r](https://tweag.github.io/HaskellR/),
+[diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/) and
+[dihaa](https://bitbucket.org/sascha_wilde/dihaa), designed for gitlab-ci.
+Shakebook is "open-hood", meaning there's no api surface. Everything you need
+is in the Shakefile and the supporting periphery.
 
 This example is powered by [this template
 repository](https://gitlab.com/zenhaskell/shakebook) and deployed with gitlab
