@@ -23,6 +23,13 @@ copy](book.pdf), or [slides](slides.pdf).
 
 $x^2 + y^2 = e^{i\theta}$
 
+## Syntax Highlighting:
+
+```{.haskell}
+class Functor a where
+  fmap :: (a -> b) -> f a -> f b
+```
+
 ## Diagrams
 
 Diagram generation with diagrams:
