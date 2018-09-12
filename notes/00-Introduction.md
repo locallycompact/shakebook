@@ -22,6 +22,12 @@ Plot generation with inline-r:
 
 ![](plots/cluster.png){width=200 height=200}
 
+## Drawings
+
+Drawings with dihaa
+
+![](diagrams/drawing.png){width=400 height=400}
+
 # Testing Locally
 
 You will need haskell and stack, you will also need to install pandoc and shake with:

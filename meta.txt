@@ -1,6 +1,6 @@
 ---
-title: Pandoc/Shake Gitbook Template
+title: Shakedocs
 author: Your Name Goes Here
-date: 2018-06-26
-version: June 2018
+date: 2018-09-12
+version: September 2018
 ---

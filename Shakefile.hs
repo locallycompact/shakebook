@@ -14,6 +14,7 @@ import           Development.Shake.FilePath
 import           Development.Shake.Util
 import           RIO                     hiding ( view )
 import qualified RIO.ByteString.Lazy           as LBS
+import           RIO.Directory
 import           RIO.Text                      as Text
 import           RIO.Set                       as Set
 import           Slick
@@ -56,6 +57,9 @@ imgs = ["img/*.png"]
 js :: [FilePattern]
 js = ["js/*.js"]
 
+css :: [FilePattern]
+css = ["css/*.css"]
+
 verbatim :: Iso' FilePath FilePath
 verbatim = iso (site </>) dropDirectory1
 
@@ -71,8 +75,11 @@ getImages = getDirectoryFiles "" imgs
 getJSFiles :: Action [FilePath]
 getJSFiles = getDirectoryFiles "" js
 
+getCSSFiles :: Action [FilePath]
+getCSSFiles = getDirectoryFiles "" css
+
 staticFileDeploy :: [FilePattern]
-staticFileDeploy = view (mapping verbatim) $ join [fonts, imgs, js]
+staticFileDeploy = view (mapping verbatim) $ join [fonts, imgs, js, css]
 
 staticFileDeployRules :: Rules ()
 staticFileDeployRules = forM_ staticFileDeploy (%> copyVerbatim)
@@ -90,27 +97,6 @@ hsToSvg = iso (-<.> ".svg") (-<.> ".hs")
 
 ascToPng :: Iso' FilePath FilePath
 ascToPng = iso (-<.> ".png") (-<.> "asc")
-
---- CSS ------------------------------------------------------------------------
-
-cssResult :: [FilePattern]
-cssResult = view (mapping hsToCss) css
-
-cssDeploy :: [FilePattern]
-cssDeploy = view (mapping verbatim) cssResult
-
-compileCss :: FilePath -> Action ()
-compileCss x = do
-  let src = (view . from) hsToCss x
-  need [src]
-  Stdout z <- command [] src []
-  writeFile' x z
-
-cssCompileRules :: Rules ()
-cssCompileRules = forM_ cssResult (%> compileCss)
-
-cssDeployRules :: Rules ()
-cssDeployRules = forM_ cssDeploy (%> copyVerbatim)
 
 --- R Plots --------------------------------------------------------------------
 
@@ -182,13 +168,14 @@ compileDihaa :: FilePath -> Action ()
 compileDihaa x = do
   let src = (view . from) ascToPng x
   need [src]
-  command [] "dihaa" [src, "-p"]
+  command_ [] "dihaa" [src, "-p"]
+  renameFile (addExtension src "png") x
 
 dihaaCompileRules :: Rules ()
-dihaaCompileRules = forM_ diagramResult (%> compileDihaa)
+dihaaCompileRules = forM_ dihaaResult (%> compileDihaa)
 
 dihaaDeployRules :: Rules ()
-dihaaDeployRules = forM_ diagramDeploy (%> copyVerbatim)
+dihaaDeployRules = forM_ dihaaDeploy (%> copyVerbatim)
 
 --- Pandoc Options -------------------------------------------------------------
 
@@ -244,12 +231,12 @@ main = shakeArgs shakeOptions $ do
     removeFilesAfter "." [site]
 
   staticFileDeployRules
-  cssCompileRules
-  cssDeployRules
   plotCompileRules
   plotDeployRules
   diagramCompileRules
   diagramDeployRules
+  dihaaCompileRules
+  dihaaDeployRules
 
   index %> \out -> do
     css   <- getCSSFiles
@@ -259,8 +246,7 @@ main = shakeArgs shakeOptions $ do
     plots <- getPlots
     diagrams <- getDiagrams
     dihaas <- getDihaas
-    need $ view (mapping verbatim) $ join [fonts, imgs, js]
-    need $ view (mapping (verbatim . hsToCss)) css
+    need $ view (mapping verbatim) $ join [fonts, imgs, js, css]
     need $ view (mapping (verbatim . hsToPng)) plots
     need $ view (mapping (verbatim . hsToSvg)) diagrams
     need $ view (mapping (verbatim . ascToPng)) dihaas

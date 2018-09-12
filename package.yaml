@@ -1,8 +1,8 @@
-name:       gitbook-template
+name:       shakebook
 version:   '0.1.0.0'
 category:   Web
 homepage:   https://zenhaskell.gitlab.io
-git:        https://gitlab.com/zenhaskell/gitbook-template
+git:        https://gitlab.com/zenhaskell/shakebook
 license:    PublicDomain
 author:     Author name here
 maintainer: example@example.com
