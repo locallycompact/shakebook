@@ -1,4 +1,4 @@
-image: zenhaskell/pandoc:lts-12.6
+image: zenhaskell/analysis:lts-12.9
 
 pages:
   stage: deploy
