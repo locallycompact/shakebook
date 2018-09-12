@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack runhaskell --resolver lts-12.7 --package rio  --package diagrams
+-- stack runhaskell --resolver lts-12.9 --package rio  --package diagrams
 
 {-# LANGUAGE NoImplicitPrelude #-}
 
