@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack runhaskell --resolver nightly-2018-08-21 --package rio --package inline-r --package optparse-applicative
+-- stack runhaskell --resolver lts-12.9 --package rio --package inline-r --package optparse-applicative
 
 {-# LANGUAGE NoImplicitPrelude   #-}
 {-# LANGUAGE OverloadedStrings   #-}
