@@ -1,7 +1,7 @@
 # Hello World
 
 Shakebook is a robust documentation generator powered by
-[shake](https://shakebuild.com/), [pandoc](https://pandoc.org/)
+[shake](https://shakebuild.com/), [pandoc](https://pandoc.org/),
 [slick](https://hackage.haskell.org/package/slick),
 [inline-r](https://tweag.github.io/HaskellR/),
 [diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/) and
