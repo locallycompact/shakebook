@@ -246,9 +246,9 @@ main = shakeArgs shakeOptions $ do
     diagrams <- getDiagrams
     drawings <- getDrawings
     need $ view (mapping verbatim) $ join [fonts, imgs, js, css]
-    need $ view (mapping (verbatim . hsToPng)) plots
-    need $ view (mapping (verbatim . hsToSvg)) diagrams
-    need $ view (mapping (verbatim . addPngExt)) drawings
+      <> view (mapping hsToPng) plots
+      <> view (mapping hsToSvg) diagrams
+      <> view (mapping addPngExt) drawings
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x
     t <- readFile' htemplate
@@ -257,12 +257,14 @@ main = shakeArgs shakeOptions $ do
     LBS.writeFile out f
 
   pdf %> \out -> do
+    imgs <- getImages 
     plots <- getPlots
     diagrams <- getDiagrams
     drawings <- getDrawings
-    need $ view (mapping hsToPng) plots
-    need $ view (mapping hsToSvg) diagrams
-    need $ view (mapping addPngExt) drawings
+    need $ imgs
+        <> view (mapping hsToPng) plots
+        <> view (mapping hsToSvg) diagrams
+        <> view (mapping addPngExt) drawings
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x
     f <- liftIO . runIOorExplode $ do
@@ -271,12 +273,14 @@ main = shakeArgs shakeOptions $ do
     LBS.writeFile out f
 
   beamer %> \out -> do
+    imgs <- getImages 
     plots <- getPlots
     diagrams <- getDiagrams
     drawings <- getDrawings
-    need $ view (mapping hsToPng) plots
-    need $ view (mapping hsToSvg) diagrams
-    need $ view (mapping addPngExt) drawings
+    need $ imgs
+        <> view (mapping hsToPng) plots
+        <> view (mapping hsToSvg) diagrams
+        <> view (mapping addPngExt) drawings
     x <- getDirectoryFiles "" $ mdwn <> meta
     y <- mapM readFile' x 
     f <- liftIO . runIOorExplode $ do
