@@ -15,6 +15,9 @@ You will need stack.
 
     stack build
 
+This will create the site in the folder `public`. This will take a while the
+first time you run it.
+
 You can then test this in chromium by doing
 
     stack exec -- site test
@@ -25,3 +28,9 @@ You can build the pdf and slide copies with
     stack exec -- site beamer
 
 or change the browser by editing the Shakefile.hs.
+
+You can clean up with
+
+    stack exec -- site clean
+
+If anything goes haywire, just `git clean -dfx` and rebuild from scratch.
