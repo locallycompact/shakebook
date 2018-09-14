@@ -228,6 +228,10 @@ main = shakeArgs shakeOptions $ do
   phony "clean" $ do
     putNormal $ "Cleaning files in " ++ site
     removeFilesAfter "." [site]
+    removeFilesAfter "." $
+         view (mapping hsToPng) plots
+      <> view (mapping hsToSvg) diagrams
+      <> view (mapping addPngExt) drawings
 
   staticFileDeployRules
   plotCompileRules
