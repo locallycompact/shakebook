@@ -1,4 +1,4 @@
-image: zenhaskell/analysis:lts-12.9
+image: zenhaskell/analysis:lts-12.21
 
 pages:
   stage: deploy
