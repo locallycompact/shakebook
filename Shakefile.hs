@@ -13,6 +13,7 @@ import           Development.Shake.Command
 import           Development.Shake.FilePath
 import           Development.Shake.Util
 import           RIO                     hiding ( view )
+import           RIO.List
 import qualified RIO.ByteString.Lazy           as LBS
 import           RIO.Directory
 import           RIO.Text                      as Text
@@ -116,7 +117,7 @@ compilePlot :: FilePath -> Action ()
 compilePlot x = do
   let src = (view . from) hsToPng x
   need [src]
-  command [] src ["-o", x] 
+  command [] "nix-shell" ["--command", RIO.List.intercalate " " ["runhaskell", src, "-o", x]]
 
 plotCompileRules :: Rules ()
 plotCompileRules = forM_ plotResult (%> compilePlot)
@@ -142,7 +143,7 @@ compileDiagram :: FilePath -> Action ()
 compileDiagram x = do
   let src = (view . from) hsToSvg x
   need [src]
-  command [] src ["-o", x, "-w", "200", "-h", "200"]
+  command [] "nix-shell" ["--command", RIO.List.intercalate " " ["runhaskell", src, "-o", x, "-w", "200", "-h", "200"]]
 
 diagramCompileRules :: Rules ()
 diagramCompileRules = forM_ diagramResult (%> compileDiagram)
@@ -168,7 +169,7 @@ compileDrawing :: FilePath -> Action ()
 compileDrawing x = do
   let src = (view . from) addPngExt x
   need [src]
-  command [] "dihaa" [src, "-p"]
+  command [] "nix-shell" ["--command", RIO.List.intercalate " " ["dihaa", src, "-p"]]
 
 drawingCompileRules :: Rules ()
 drawingCompileRules = forM_ drawingResult (%> compileDrawing)

@@ -1,12 +1,22 @@
-image: zenhaskell/analysis:lts-12.21
+image: zenhaskell/foundation:latest
+
+before_script:
+- cachix use locallycompact
+- export LOCALE_ARCHIVE=$(nix-build --no-out-link '<nixpkgs>' -A glibcLocales)/lib/locale/locale-archive
+- export LC_ALL="en_US.utf8"
+- echo "$CACHIX_CONFIG" > /root/.cachix.dhall
 
 pages:
   stage: deploy
   script:
-  - stack build
-  - stack exec -- site
-  - stack exec -- site pdf
-  - stack exec -- site beamer
+  - |
+    nix-shell
+    for x in $buildInputs; do
+      nix-store -qR --include-outputs "$PUSH" $(nix-store -q --deriver "$PUSH") | cachix push "$CACHIX_USER" -c /root/.cachix.dhall
+    done
+  - nix-shell --command 'shake'
+  - nix-shell --command 'shake pdf'
+  - nix-shell --command 'shake beamer'
   artifacts:
     paths:
     - public

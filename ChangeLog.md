@@ -1,5 +1,9 @@
 # Changelog for shakebook
 
+## v0.0.2.0
+
+* Add nix-shell with stack2nix environment.
+
 ## v0.0.1.0
 
 * Initial draft of shakebook.
