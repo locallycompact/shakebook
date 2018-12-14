@@ -6,5 +6,9 @@ extra-deps:
 - inline-r-0.9.2@sha256:cf66cf8721892020a79cf63343155efd7a31873e3255c60c2dced0a0c0c2cdbb
 - slick-0.2.0.0@sha256:f4c66d78ea0bf47dfcad23dee14a250f1ae21dfd1c79791901528ae13b6eda36
 
+flags:
+  shakebook:
+    stack: true
+
 nix:
   packages: [zlib, pkgconfig, R, texlive.combined.scheme-small]

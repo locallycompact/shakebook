@@ -31890,6 +31890,7 @@ inherit (pkgs) libjpeg; inherit (pkgs) libpng; inherit (pkgs) zlib;};
            pname = "shakebook";
            version = "0.0.1.0";
            src = ./.;
+           configureFlags = [ "-fstack" ];
            isLibrary = false;
            isExecutable = true;
            libraryToolDepends = [ hpack ];

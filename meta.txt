@@ -1,6 +1,6 @@
 ---
-title: Shakebook Template
+title: Shakebook - Robust Technical Documentation
 author: Your Name Goes Here
-date: 2018-09-12
-version: September 2018
+date: 2018-12-13
+version: December 2018 (v0.0.2)
 ---

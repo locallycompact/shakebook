@@ -17,6 +17,12 @@ extra-source-files:
 - LICENSE
 - README.md
 
+flags:
+  stack:
+     description: Whether or not this project was build with stack
+     manual: true
+     default: false
+
 dependencies:
 - base >= 4.7 && < 5
 - data-default

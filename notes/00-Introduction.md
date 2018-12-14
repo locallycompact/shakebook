@@ -1,13 +1,16 @@
 # Hello World
 
-Shakebook is a robust documentation generator powered by
-[shake](https://shakebuild.com/), [pandoc](https://pandoc.org/),
+Shakebook is a documentation generator aimed at covering all the bases for
+mathematical, technical and scientific diagrams and typesetting. Currently
+powered by [shake](https://shakebuild.com/), [pandoc](https://pandoc.org/),
 [slick](https://hackage.haskell.org/package/slick),
 [inline-r](https://tweag.github.io/HaskellR/),
 [diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/) and
 [dihaa](https://bitbucket.org/sascha_wilde/dihaa), designed for gitlab-ci.
 Shakebook is "open-hood", meaning there's no api surface. Everything you need
-is in the Shakefile and the supporting periphery.
+is in the Shakefile and the supporting periphery. Using shake, you can isolate
+the diagrams and supporting compilation units that make up your document more
+precisely than is available in typical LaTeX setups.
 
 This example is powered by [this template
 repository](https://gitlab.com/zenhaskell/shakebook) and deployed with gitlab
@@ -19,11 +22,11 @@ copy](book.pdf), or [slides](slides.pdf).
 
 # Features
 
-## Inline LaTeX:
+## Inline LaTeX
 
 $x^2 + y^2 = e^{i\theta}$
 
-## Syntax Highlighting:
+## Syntax Highlighting
 
 ```{.haskell}
 class Functor a where
@@ -48,9 +51,32 @@ Drawings with dihaa
 
 ![](drawings/system.asc.png){width=400 height=400}
 
-# Testing Locally
+# Building Locally
 
-You will need stack.
+You can build with either nix or stack, nix is preferred but both will work.
+
+## Building With Nix
+
+Drop into a reproducible build environment with
+
+    nix-shell
+
+You can then run `shake` from in here. You can test this in chromium by running.
+
+    shake
+
+You can build the pdf and slide copies with
+
+    shake pdf
+    shake beamer
+
+Clean up with
+
+    shake clean
+
+## Building With Stack
+
+Compile the `site` executable with
 
     stack build
 

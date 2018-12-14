@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                 #-}
 {-# LANGUAGE DeriveAnyClass      #-}
 {-# LANGUAGE DeriveGeneric       #-}
 {-# LANGUAGE FlexibleContexts    #-}
@@ -28,6 +29,12 @@ import           Text.Pandoc.Readers
 import           Text.Pandoc.Writers
 
 --- Global Configuration -----------------------------------------------------------
+
+#ifdef WITH_STACK
+buildCmd c xs = command [] "stack" $ [c] ++ xs
+# else
+buildCmd c xs = command [] c xs
+#endif
 
 site :: FilePath
 site = "public"
@@ -117,7 +124,7 @@ compilePlot :: FilePath -> Action ()
 compilePlot x = do
   let src = (view . from) hsToPng x
   need [src]
-  command [] "nix-shell" ["--command", RIO.List.intercalate " " ["runhaskell", src, "-o", x]]
+  buildCmd "runhaskell" [src, "-o", x]
 
 plotCompileRules :: Rules ()
 plotCompileRules = forM_ plotResult (%> compilePlot)
@@ -143,7 +150,7 @@ compileDiagram :: FilePath -> Action ()
 compileDiagram x = do
   let src = (view . from) hsToSvg x
   need [src]
-  command [] "nix-shell" ["--command", RIO.List.intercalate " " ["runhaskell", src, "-o", x, "-w", "200", "-h", "200"]]
+  buildCmd "runhaskell" [src, "-o", x, "-w", "200", "-h", "200"]
 
 diagramCompileRules :: Rules ()
 diagramCompileRules = forM_ diagramResult (%> compileDiagram)
@@ -169,7 +176,7 @@ compileDrawing :: FilePath -> Action ()
 compileDrawing x = do
   let src = (view . from) addPngExt x
   need [src]
-  command [] "nix-shell" ["--command", RIO.List.intercalate " " ["dihaa", src, "-p"]]
+  command [] "dihaa" [src, "-p"]
 
 drawingCompileRules :: Rules ()
 drawingCompileRules = forM_ drawingResult (%> compileDrawing)
