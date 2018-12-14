@@ -1,7 +1,7 @@
 # Shakebook - Robust Technical Documentation
 
 Shakebook is a robust documentation generator powered by
-[shake](https://shakebuild.com/), [pandoc](https://pandoc.org/)
+[shake](https://shakebuild.com/), [pandoc](https://pandoc.org/),
 [slick](https://hackage.haskell.org/package/slick),
 [inline-r](https://tweag.github.io/HaskellR/),
 [diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/) and
@@ -9,7 +9,30 @@ Shakebook is a robust documentation generator powered by
 Shakebook is "open-hood", meaning there's no api surface. Everything you need
 is in the Shakefile and the supporting periphery.
 
-# Testing Locally
+## Building Locally
+
+You can build with either stack or nix.
+
+### Building With Nix
+
+Drop into a reproducible build environment with
+
+    nix-shell
+
+You can then run `shake` from in here. You can test this in chromium by running.
+
+    shake
+
+You can build the pdf and slide copies with
+
+    shake pdf
+    shake beamer
+
+Clean up with
+
+    shake clean
+
+### Building With Stack
 
 You will need stack.
 
