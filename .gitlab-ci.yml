@@ -4,16 +4,21 @@ before_script:
 - cachix use locallycompact
 - export LOCALE_ARCHIVE=$(nix-build --no-out-link '<nixpkgs>' -A glibcLocales)/lib/locale/locale-archive
 - export LC_ALL="en_US.utf8"
-- echo "$CACHIX_CONFIG" > /root/.cachix.dhall
+- |
+  if [ -z ${CACHIX_CONFIG} ]; then
+    echo "$CACHIX_CONFIG" > /root/.cachix.dhall
+  fi
 
 pages:
   stage: deploy
   script:
   - |
     nix-shell
-    for x in $buildInputs; do
-      nix-store -qR --include-outputs "$PUSH" $(nix-store -q --deriver "$PUSH") | cachix push "$CACHIX_USER" -c /root/.cachix.dhall
-    done
+    if [ -z ${CACHIX_USER} ]; then
+      for x in $buildInputs; do
+        nix-store -qR --include-outputs "$PUSH" $(nix-store -q --deriver "$PUSH") | cachix push "$CACHIX_USER" -c /root/.cachix.dhall
+      done
+    fi
   - nix-shell --command 'shake'
   - nix-shell --command 'shake pdf'
   - nix-shell --command 'shake beamer'
