@@ -61,6 +61,10 @@ Drop into a reproducible build environment with
 
     nix-shell
 
+If you have [cachix](https://cachix.org/), you can speed this up by running
+
+    cachix use locallycompact
+
 You can then run `shake` from in here. You can test this in chromium by running.
 
     shake
