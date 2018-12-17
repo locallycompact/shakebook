@@ -3,6 +3,7 @@
 ## v0.0.2.0
 
 * Add nix-shell with stack2nix environment.
+* Add cachix support in .gitlab-ci.yml
 
 ## v0.0.1.0
 
