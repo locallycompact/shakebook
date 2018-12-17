@@ -90,3 +90,12 @@ You can build the pdf and slide copies with
     stack exec -- site beamer
 
 or change the browser by editing the Shakefile.hs.
+
+# Roadmap
+
+* Add [TikZ](http://www.texample.net/tikz/) support (and pandoc filters as compilation units in general)
+* Add [clay](http://hackage.haskell.org/package/clay) and [lucid](http://hackage.haskell.org/package/lucid) support.
+* EDSL for constructing [string
+  diagrams](https://ncatlab.org/nlab/show/string+diagram) and [signal flow
+diagrams](https://arxiv.org/pdf/1803.05316.pdf) from monoidal categories.
+* Support for model checking and verification as a preprocessing step.
