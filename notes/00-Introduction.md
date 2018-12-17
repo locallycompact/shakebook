@@ -29,7 +29,7 @@ $x^2 + y^2 = e^{i\theta}$
 ## Syntax Highlighting
 
 ```{.haskell}
-class Functor a where
+class Functor f where
   fmap :: (a -> b) -> f a -> f b
 ```
 
