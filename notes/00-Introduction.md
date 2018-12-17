@@ -65,9 +65,13 @@ If you have [cachix](https://cachix.org/), you can speed this up by running
 
     cachix use locallycompact
 
-You can then run `shake` from in here. You can test this in chromium by running.
+You can then run `shake` from in within the nix shell.
 
     shake
+
+A shortcut to testing the output in chromium is
+
+    shake test
 
 You can build the pdf and slide copies with
 
