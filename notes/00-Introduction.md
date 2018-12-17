@@ -99,3 +99,4 @@ or change the browser by editing the Shakefile.hs.
   diagrams](https://ncatlab.org/nlab/show/string+diagram) and [signal flow
 diagrams](https://arxiv.org/pdf/1803.05316.pdf) from monoidal categories.
 * Support for model checking and verification as a preprocessing step.
+* Calendar EDSL with a good time/event/duration abstraction.
