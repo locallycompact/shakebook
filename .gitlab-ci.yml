@@ -2,7 +2,6 @@ image: zenhaskell/foundation:latest
 
 before_script:
 - cachix use locallycompact
-- export LC_ALL="en_US.utf8"
 - |
   if [ -z ${CACHIX_CONFIG} ]; then
     echo "$CACHIX_CONFIG" > /root/.cachix.dhall
