@@ -2,7 +2,6 @@ image: zenhaskell/foundation:latest
 
 before_script:
 - cachix use locallycompact
-- export LOCALE_ARCHIVE=$(nix-build --no-out-link '<nixpkgs>' -A glibcLocales)/lib/locale/locale-archive
 - export LC_ALL="en_US.utf8"
 - |
   if [ -z ${CACHIX_CONFIG} ]; then
