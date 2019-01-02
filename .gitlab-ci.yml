@@ -15,7 +15,7 @@ pages:
     nix-shell
     if [ -z ${CACHIX_USER} ]; then
       for x in $buildInputs; do
-        nix-store -qR --include-outputs "$PUSH" $(nix-store -q --deriver "$PUSH") | cachix push "$CACHIX_USER" -c /root/.cachix.dhall
+        nix-store -qR --include-outputs "$x" $(nix-store -q --deriver "$x") | cachix push "$CACHIX_USER" -c /root/.cachix.dhall
       done
     fi
   - nix-shell --command 'shake'
