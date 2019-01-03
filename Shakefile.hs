@@ -196,7 +196,7 @@ beamerWriterOptions :: WriterOptions
 beamerWriterOptions = def { writerVariables = [("fonttheme", "serif")] }
 
 html5WriterOptions :: WriterOptions
-html5WriterOptions = def { writerTableOfContents = True }
+html5WriterOptions = def { writerHTMLMathMethod = MathJax "", writerTableOfContents = True }
 
 --- PDF Compilation ------------------------------------------------------------
 
