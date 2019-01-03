@@ -6,11 +6,10 @@ before_script:
 pages:
   stage: deploy
   script:
-  - nix-shell
+  - nix-shell --command 'echo "Success"'
   - |
-    if [ -z "${CACHIX_USER}" && -z "${CACHIX_SIGNING_KEY}" ]; then
-      nix-shell
-      for x in $buildInputs; do
+    if [ -z "${CACHIX_USER}" ] && [ -z "${CACHIX_SIGNING_KEY}" ]; then
+      for x in $(nix-shell --command 'echo $buildInputs'); do
         nix-store -qR --include-outputs "$x" $(nix-store -q --deriver "$x") | cachix push "$CACHIX_USER"
       done
     fi
