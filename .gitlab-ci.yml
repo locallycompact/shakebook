@@ -10,7 +10,7 @@ pages:
   - |
     if [ ! -z "${CACHIX_USER}" ] && [ ! -z "${CACHIX_SIGNING_KEY}" ]; then
       for x in $(nix-shell --command 'echo $buildInputs'); do
-        nix-store -qR --include-outputs "$x" $(nix-store -q --deriver "$x") | cachix push "$CACHIX_USER"
+        nix-store -qR --include-outputs "$x" | cachix push "$CACHIX_USER"
       done
     fi
   - nix-shell --command 'shake'
