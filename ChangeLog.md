@@ -1,5 +1,10 @@
 # Changelog for shakebook
 
+## v0.0.3.0
+
+* Change cachix CI to use `CACHIX_SIGNING_KEY` (and actually work).
+* Drop locale export in CI it's now correctly exported in the upstream docker.
+
 ## v0.0.2.0
 
 * Add nix-shell with stack2nix environment.
