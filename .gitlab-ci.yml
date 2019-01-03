@@ -2,19 +2,16 @@ image: zenhaskell/foundation:latest
 
 before_script:
 - cachix use locallycompact
-- |
-  if [ -z "${CACHIX_CONFIG}" ]; then
-    echo "$CACHIX_CONFIG" > /root/.cachix.dhall
-  fi
 
 pages:
   stage: deploy
   script:
+  - nix-shell
   - |
-    nix-shell
-    if [ -z "${CACHIX_USER}" ]; then
+    if [ -z "${CACHIX_USER}" && -z "${CACHIX_SIGNING_KEY}" ]; then
+      nix-shell
       for x in $buildInputs; do
-        nix-store -qR --include-outputs "$x" $(nix-store -q --deriver "$x") | cachix push "$CACHIX_USER" -c /root/.cachix.dhall
+        nix-store -qR --include-outputs "$x" $(nix-store -q --deriver "$x") | cachix push "$CACHIX_USER"
       done
     fi
   - nix-shell --command 'shake'
