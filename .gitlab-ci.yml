@@ -3,7 +3,7 @@ image: zenhaskell/foundation:latest
 before_script:
 - cachix use locallycompact
 - |
-  if [ -z ${CACHIX_CONFIG} ]; then
+  if [ -z "${CACHIX_CONFIG}" ]; then
     echo "$CACHIX_CONFIG" > /root/.cachix.dhall
   fi
 
@@ -12,7 +12,7 @@ pages:
   script:
   - |
     nix-shell
-    if [ -z ${CACHIX_USER} ]; then
+    if [ -z "${CACHIX_USER}" ]; then
       for x in $buildInputs; do
         nix-store -qR --include-outputs "$x" $(nix-store -q --deriver "$x") | cachix push "$CACHIX_USER" -c /root/.cachix.dhall
       done
