@@ -1,5 +1,9 @@
 # Changelog for shakebook
 
+## Unreleased Changes
+
+* Switch to MathJax
+
 ## v0.0.3.0
 
 * Change cachix CI to use `CACHIX_SIGNING_KEY` (and actually work).
