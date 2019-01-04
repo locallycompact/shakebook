@@ -1,8 +1,8 @@
 # Changelog for shakebook
 
-## Unreleased Changes
+## v0.0.3.1
 
-* Switch to MathJax
+* Switch to MathJax for rendering.
 
 ## v0.0.3.0
 
