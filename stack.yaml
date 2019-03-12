@@ -1,12 +1,10 @@
-resolver: nightly-2019-02-20
+resolver: nightly-2019-03-06
 packages:
 - .
 extra-deps:
 - dihaa-0.2.1.2@sha256:9aebce91d338b4c755e92253c1c6245a13c50470c08fa0e016a44adca4bb4479
-- inline-r-0.9.2@sha256:cf66cf8721892020a79cf63343155efd7a31873e3255c60c2dced0a0c0c2cdbb
+- inline-r-0.10@sha256:df5a1842d2d0134ea9fe80e06935be62e82cff9367fac412f00b003020c4d9b5
 - slick-0.2.0.0@sha256:f4c66d78ea0bf47dfcad23dee14a250f1ae21dfd1c79791901528ae13b6eda36
-- inline-c-0.6.1.0@sha256:5dfad7b5e545f674f946dae424629e8e8eabfa11b5a5dad5a0577466c6faddf1
-- vector-0.12.0.1@sha256:3d644fff350ee3eee2896e4d00cb45e73956f2862f0b18ee502282702682b978
 
 flags:
   shakebook:
