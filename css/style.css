@@ -28,20 +28,20 @@ h1 {
   padding: 1em 0;
   margin: 0;
   text-align: center;
-  font-size: 250%;
+  font-size: 175%;
 }
 
 h2 {
-  font-size: 175%;
+  font-size: 150%;
   padding: .5em 0;
   margin: 0;
 }
 
 h3 {
-  font-size: 150%;
+  font-size: 125%;
 }
 h4 {
-  font-size: 125%;
+  font-size: 100%;
 }
 
 pre.sourceCode {
