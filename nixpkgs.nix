@@ -1,5 +1,5 @@
 import (builtins.fetchTarball {
-  name = "nixos-unstable-2019-03-07-5b4152a911f61b2a6e23d668f6f2f3abe4b79c0b";
-  url = "https://github.com/nixos/nixpkgs/archive/5b4152a911f61b2a6e23d668f6f2f3abe4b79c0b.tar.gz";
-  sha256 = "0jaaddmjpbf9y0ddj3nvcp1wd4zbjhmbd23wj10z3nlfygsnipil";
+  name = "nixos-unstable-2019-03-18-ff43f0a7b51a21b06086cfc91de1c81512cfa0e1";
+  url = "https://github.com/nixos/nixpkgs/archive/ff43f0a7b51a21b06086cfc91de1c81512cfa0e1.tar.gz";
+  sha256 = "0krpjxbnqp6zjfk8kacf2fgnw71kw2ylfaakr6bc7lbpcz6pi025";
 })
