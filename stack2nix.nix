@@ -30337,7 +30337,7 @@ inherit (pkgs) libjpeg; inherit (pkgs) libpng; inherit (pkgs) zlib;};
          }:
          mkDerivation {
            pname = "shakebook";
-           version = "0.0.3.1";
+           version = "0.0.3.2";
            src = ./.;
            configureFlags = [ "-fstack" ];
            isLibrary = false;
