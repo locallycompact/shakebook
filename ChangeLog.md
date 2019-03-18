@@ -1,5 +1,10 @@
 # Changelog for shakebook
 
+## v0.0.3.2
+
+* Bump to stack 2019-03-18 with ghc 8.6.4.
+* Some formatting improvements.
+
 ## v0.0.3.1
 
 * Switch to MathJax for rendering.

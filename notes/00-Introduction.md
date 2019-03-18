@@ -7,10 +7,10 @@ powered by [shake](https://shakebuild.com/), [pandoc](https://pandoc.org/),
 [inline-r](https://tweag.github.io/HaskellR/),
 [diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/) and
 [dihaa](https://bitbucket.org/sascha_wilde/dihaa), designed for gitlab-ci.
-Shakebook is "open-hood", meaning there's no api surface. Everything you need
-is in the Shakefile and the supporting periphery. Using shake, you can isolate
-the diagrams and supporting compilation units that make up your document more
-precisely than is available in typical LaTeX setups.
+Shakebook has no API or library, everything you need is in the Shakefile and
+the supporting periphery. Using shake, you can isolate the diagrams and
+supporting compilation units that make up your document more precisely than is
+available in typical LaTeX setups.
 
 This example is powered by [this template
 repository](https://gitlab.com/zenhaskell/shakebook) and deployed with gitlab
@@ -109,3 +109,4 @@ diagrams](https://arxiv.org/pdf/1803.05316.pdf) from monoidal categories.
 * Support for model checking and verification as a preprocessing step.
 * Calendar EDSL with a good time/event/duration abstraction.
 * Better solution to Javascript.
+* shakebook-init that deploys a template with features turned on/off.
