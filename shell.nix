@@ -1,4 +1,4 @@
-{ pkgs ? import ./nixpkgs.nix {}, ... }:
+{ pkgs ? import ./fetch-nixpkgs.nix {}, ... }:
 let
    f = import (./stack2nix.nix) { pkgs = pkgs; };
    henv = f.ghcWithPackages (p: with p; [
