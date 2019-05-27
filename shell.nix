@@ -10,6 +10,7 @@ let
       rio
       shake
       slick
+      wreq
    ]);
 in
 with pkgs;
